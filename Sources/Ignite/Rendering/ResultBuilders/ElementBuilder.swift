@@ -5,10 +5,6 @@
 // See LICENSE for license information.
 //
 
-typealias HeadElementBuilder = ElementBuilder<any HeadElement>
-typealias StaticPageBuilder = ElementBuilder<any StaticPage>
-typealias ErrorPageBuilder = ElementBuilder<any ErrorPage>
-typealias ArticlePageBuilder = ElementBuilder<any ArticlePage>
 typealias ActionBuilder = ElementBuilder<any Action>
 
 /// A result builder that lets us generically build arrays of some content.

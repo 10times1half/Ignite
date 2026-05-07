@@ -314,11 +314,8 @@ public struct NavigationBar: HTML {
 
     private func renderLinkItem(_ link: Link) -> some HTML {
         ListItem {
-            let isActive = publishingContext.currentRenderingPath == link.url
-            link.trimmingMargin() // Remove the default margin applied to text
+            link.trimmingMargin()
                 .class(link.style == .button ? nil : "nav-link")
-                .class(isActive ? "active" : nil)
-                .aria(.current, isActive ? "page" : nil)
                 .class("text-nowrap")
         }
         .class("nav-item")

@@ -17,9 +17,8 @@ private func hintData(html: String) -> [Attribute] {
 }
 
 private func hintData(markdown: String) -> [Attribute] {
-    let parser = MarkdownToHTML(markdown: markdown, removeTitleFromBody: true)
-    let cleanedHTML = parser.body.replacing(#/<\/?p>/#, with: "")
-    return hintData(html: cleanedHTML)
+    // Markdown parsing not available; pass as plain text
+    return hintData(text: markdown)
 }
 
 @MainActor private func hintModifier(

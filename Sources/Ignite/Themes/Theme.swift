@@ -113,9 +113,6 @@ public protocol Theme: Sendable {
     /// Bottom margin for paragraphs
     var paragraphBottomMargin: LengthUnit { get }
 
-    /// The color scheme for syntax highlighting
-    var syntaxHighlighterTheme: HighlighterTheme { get }
-
     typealias ResponsiveValues = Ignite.ResponsiveValues<LengthUnit>
 
     /// Base font size

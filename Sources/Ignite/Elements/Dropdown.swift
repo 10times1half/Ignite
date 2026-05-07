@@ -128,9 +128,7 @@ public struct Dropdown: HTML, NavigationItem, FormItem {
         if configuration == .navigationBarItem {
             let titleAttributes = title.attributes
             let title = title.clearingAttributes()
-            let hasActiveItem = items.contains {
-                publishingContext.currentRenderingPath == ($0 as? Link)?.url
-            }
+            let hasActiveItem = false
 
             Link(title, target: "#")
                 .customAttribute(name: "role", value: "button")
@@ -151,8 +149,6 @@ public struct Dropdown: HTML, NavigationItem, FormItem {
                 if let link = item as? Link {
                     ListItem {
                         link.class("dropdown-item")
-                            .class(publishingContext.currentRenderingPath == link.url ? "active" : nil)
-                            .aria(.current, publishingContext.currentRenderingPath == link.url ? "page" : nil)
                     }
                 } else if let text = item as? Text {
                     ListItem {

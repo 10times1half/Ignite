@@ -101,29 +101,6 @@ public struct Link: InlineElement, NavigationItem, DropdownItem {
         self.url = target
     }
 
-    /// Creates a `Link` wrapping the provided content and pointing to the path
-    /// of the `Article` instance you provide.
-    /// - Parameters:
-    ///   - article: An article in your site.
-    ///   - content: The user-facing content to show inside the `Link`.
-    public init(
-        target article: Article,
-        @InlineElementBuilder content: @escaping () -> some InlineElement
-    ) {
-        self.content = content()
-        self.url = article.path
-    }
-
-    /// Creates a `Link` instance from the content you provide, linking to the path
-    /// belonging to the specified `Page`.
-    /// - Parameters:
-    ///   - content: The user-facing content to show inside the `Link`.
-    ///   - target: The `Page` you want to link to.
-    public init(_ content: some InlineElement, target: any StaticPage) {
-        self.content = content
-        self.url = target.path
-    }
-
     /// Creates a `Link` instance from the content you provide, linking to the
     /// URL specified.
     /// - Parameters:
@@ -132,24 +109,6 @@ public struct Link: InlineElement, NavigationItem, DropdownItem {
     public init(_ content: String, target: URL) {
         self.content = content
         self.url = target.absoluteString
-    }
-
-    /// Convenience initializer that creates a new `Link` instance using the
-    /// path of the `Article` instance you provide.
-    /// - Parameters:
-    ///    - content: The user-facing content to show inside the `Link`.
-    ///    - target: An article in your site.
-    public init(_ content: String, target: Article) {
-        self.content = content
-        self.url = target.path
-    }
-
-    /// Convenience initializer that creates a new `Link` instance using the
-    /// title and path of the `Article` instance you provide.
-    /// - Parameter article: A piece of content from your site.
-    public init(_ article: Article) {
-        self.content = article.title
-        self.url = article.path
     }
 
     /// Controls in which window this page should be opened.
@@ -252,12 +211,7 @@ public struct Link: InlineElement, NavigationItem, DropdownItem {
     private func renderStandardLink() -> Markup {
         var linkAttributes = attributes.appending(classes: linkClasses)
 
-        guard let url = URL(string: url) else {
-            publishingContext.addWarning("One of your links uses an invalid URL.")
-            return Markup()
-        }
-
-        let path = publishingContext.linkPath(for: url)
+        let path = url
         linkAttributes.append(customAttributes: .init(name: "href", value: path))
         let contentHTML = content.markupString()
         return Markup("<a\(linkAttributes)>\(contentHTML)</a>")

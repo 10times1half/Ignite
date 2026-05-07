@@ -111,13 +111,6 @@ public struct Embed: HTML, LazyLoadable {
             accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share
             """
 
-        if attributes.classes.contains("ratio") == false {
-            publishingContext.addWarning("""
-            Embedding \(url) without an aspect ratio will cause it to appear very small. \
-            It is recommended to use aspectRatio() so it can scale automatically.
-            """)
-        }
-
         return Section {
              #"<iframe src="\#(url)" title="\#(title)" allow="\#(allowPermissions)"></iframe>"#
         }

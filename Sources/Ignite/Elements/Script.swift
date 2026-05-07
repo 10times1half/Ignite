@@ -9,7 +9,7 @@ import Foundation
 
 /// Embeds some JavaScript inside this page, either directly or by
 /// referencing an external file.
-public struct Script: HTML, HeadElement {
+public struct Script: HTML {
     /// The content and behavior of this HTML.
     public var body: some HTML { self }
 
@@ -47,16 +47,12 @@ public struct Script: HTML, HeadElement {
     public func markup() -> Markup {
         var attributes = attributes
         if let file {
-            let path = publishingContext.path(for: file)
+            let path = file.absoluteString
             attributes.append(customAttributes: .init(name: "src", value: path))
             return Markup("<script\(attributes)></script>")
         } else if let code {
             return Markup("<script\(attributes)>\(code)</script>")
         } else {
-            publishingContext.addWarning("""
-            Creating a script with no source or code should not be possible. \
-            Please file a bug report on the Ignite project.
-            """)
             return Markup()
         }
     }

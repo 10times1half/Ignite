@@ -27,11 +27,6 @@ extension Color: Defaultable {
     var isDefault: Bool { self == .default }
 }
 
-extension HighlighterTheme: Defaultable {
-    /// Indicates whether this theme is the default (none) theme
-    var isDefault: Bool { self == .none }
-}
-
 extension TextDecoration: Defaultable {
     /// Indicates whether this decoration is the default (underline) decoration
     var isDefault: Bool { self == .underline }

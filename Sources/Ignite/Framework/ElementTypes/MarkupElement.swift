@@ -24,11 +24,6 @@ extension MarkupElement {
         markup().string
     }
 
-    /// The publishing context of this site.
-    var publishingContext: PublishingContext {
-        PublishingContext.shared
-    }
-
     func `is`(_ elementType: any MarkupElement.Type) -> Bool {
         switch self {
         case let element as any HTML:

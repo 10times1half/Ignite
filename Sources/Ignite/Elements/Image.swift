@@ -135,28 +135,12 @@ public struct Image: InlineElement, LazyLoadable {
     /// Renders this element using publishing context passed in.
     /// - Returns: The HTML for this element.
     public func markup() -> Markup {
-        if description == nil {
-            publishingContext.addWarning("""
-            \(path?.relativePath ?? systemImage ?? "Image"): adding images without a description is not recommended. \
-            Provide a description or use Image(decorative:) to silence this warning.
-            """)
-        }
-
         if let systemImage {
             return render(icon: systemImage, description: description ?? "")
         } else if let path {
-            let isRemote = path.scheme == "http" || path.scheme == "https"
-            let resolvedPath = if isRemote {
-                publishingContext.path(for: path)
-            } else {
-                publishingContext.assetPath(path.relativeString)
-            }
-            return render(path: resolvedPath, sourcePath: path.relativeString, description: description ?? "", isRemote: isRemote)
+            let resolvedPath = path.relativeString
+            return render(path: resolvedPath, sourcePath: path.relativeString, description: description ?? "", isRemote: true)
         } else {
-            publishingContext.addWarning("""
-            Creating an image with no name or icon should not be possible. \
-            Please file a bug report on the Ignite project.
-            """)
             return Markup()
         }
     }
@@ -181,37 +165,13 @@ private extension Image {
     /// - Parameter path: The path to the original image file
     /// - Returns: A tuple containing arrays of URLs for light and dark variants
     func findVariants(for path: String) -> (light: [URL], dark: [URL]) {
-        let assetURL = assetURL(for: path)
-        let assetPath = assetURL.deletingLastPathComponent()
-        let pathExtension = assetURL.pathExtension
-
-        let baseImageName = assetURL.deletingPathExtension().lastPathComponent
-            .split(separator: "~").first?
-            .split(separator: "@").first ?? ""
-
-        guard let files = try? FileManager.default.contentsOfDirectory(at: assetPath, includingPropertiesForKeys: nil)
-            .filter({ $0.pathExtension == pathExtension })
-        else {
-            publishingContext.addWarning("Could not read the assets directory. Please file a bug report.")
-            return ([], [])
-        }
-
-        return files.reduce(into: ([URL](), [URL]())) { result, file in
-            let filename = file.deletingPathExtension().lastPathComponent
-            let baseFilename = filename.split(separator: "~").first?.split(separator: "@").first ?? ""
-            guard baseFilename.localizedCaseInsensitiveCompare(baseImageName) == .orderedSame else { return }
-
-            if filename.localizedCaseInsensitiveContains("~dark") {
-                result.1.append(file)
-            } else if filename.localizedCaseInsensitiveContains("~light") || isDensityVariant(filename) {
-                result.0.append(file)
-            }
-        }
+        // Variant detection is not available without publishing context
+        return ([], [])
     }
 
-    /// Resolves a local image path to its file location inside the site's assets directory.
+    /// Resolves a local image path to a file URL.
     func assetURL(for path: String) -> URL {
-        publishingContext.assetsDirectory.appending(path: normalizeAssetPath(path))
+        URL(fileURLWithPath: normalizeAssetPath(path))
     }
 
     /// Converts a source or published asset path to a path relative to the site's assets directory.
@@ -246,16 +206,7 @@ private extension Image {
 
     /// Normalizes the site path by removing the trailing slash while preserving the leading slash.
     func normalizedSitePath() -> String {
-        let sitePath = publishingContext.site.url.path
-        guard sitePath != "/" else {
-            return ""
-        }
-
-        if sitePath.hasSuffix("/") {
-            return String(sitePath.dropLast())
-        }
-
-        return sitePath
+        return ""
     }
 
     /// Creates a `srcset` string from image variants with their corresponding pixel density descriptors,
@@ -263,18 +214,7 @@ private extension Image {
     /// - Parameter variants: An array of image variant URLs
     /// - Returns: An HTML attribute containing the srcset value, or nil if no valid variants exist
     func generateSourceSet(_ variants: [URL]) -> Attribute? {
-        let assetsDirectory = publishingContext.assetsDirectory.resolvingSymlinksInPath()
-
-        let sources = variants.compactMap { variant in
-            let normalizedVariant = variant.resolvingSymlinksInPath()
-            let filename = variant.deletingPathExtension().lastPathComponent
-            let densityDescriptor = getDensityDescriptor(filename).map { " \($0)" } ?? ""
-            let relativePath = normalizedVariant.path.replacingOccurrences(of: assetsDirectory.path, with: "")
-            let webPath = relativePath.split(separator: "/").joined(separator: "/")
-            let resolvedPath = publishingContext.assetPath("/\(webPath)")
-            return "\(resolvedPath)\(densityDescriptor)"
-        }.joined(separator: ", ")
-
-        return sources.isEmpty ? nil : .init(name: "srcset", value: sources)
+        // Source set generation not available without publishing context
+        return nil
     }
 }

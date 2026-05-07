@@ -106,46 +106,10 @@ public struct Text: HTML, DropdownItem {
         self.content = result
     }
 
-    /// Creates a new Text struct from a Markdown string.
-    /// - Parameter markdown: The Markdown text to parse.
+    /// Creates a new Text struct from a raw HTML or plain text string.
+    /// - Parameter markdown: The text to display (used as-is without Markdown parsing).
     public init(markdown: String) {
-        let parser = MarkdownToHTML(markdown: markdown, removeTitleFromBody: true)
-
-        // Process each paragraph individually to preserve line breaks.
-        // We could simply replace newlines with <br>, but then the paragraphs
-        // wouldn't respond to a theme's paragraphBottomMargin property.
-        if parser.body.contains("</p><p>") {
-            let paragraphs = parser.body
-                .components(separatedBy: "</p><p>")
-                .map {
-                    $0.replacingOccurrences(of: "<p>", with: "")
-                      .replacingOccurrences(of: "</p>", with: "")
-                }
-                .map(Text.init)
-
-            self.content = HTMLCollection(paragraphs)
-            self.isMultilineMarkdown = true
-        } else {
-            // Remove the wrapping <p> tags since they'll be added by markup()
-            let cleanedHTML = parser.body.replacing(#/<\/?p>/#, with: "")
-            self.content = cleanedHTML
-            self.isMultilineMarkdown = false
-        }
-    }
-
-    /// Creates a new `Text` struct from a markup format and its parser.
-    /// - Parameters:
-    ///   - markup: The Markdown text to parse.
-    ///   - parser: The parser to process the text.
-    public init(markup: String, parser: any ArticleRenderer.Type) {
-        do {
-            let parser = try parser.init(markdown: markup, removeTitleFromBody: true)
-            let cleanedHTML = parser.body.replacing(#/<\/?p>/#, with: "")
-            self.content = cleanedHTML
-        } catch {
-            self.content = markup
-            publishingContext.addError(.failedToParseMarkup)
-        }
+        self.content = markdown
     }
 
     /// Renders this element using publishing context passed in.

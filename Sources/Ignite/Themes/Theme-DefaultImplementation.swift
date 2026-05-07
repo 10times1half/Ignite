@@ -88,12 +88,6 @@ public extension Theme {
         Color(hex: "#dee2e6")
     }
 
-    var syntaxHighlighterTheme: HighlighterTheme {
-        colorScheme == .dark ?
-        .xcodeDark :
-        .automatic
-    }
-
     var link: Color {
         colorScheme == .dark ?
         Color(hex: "#6ea8fe") :

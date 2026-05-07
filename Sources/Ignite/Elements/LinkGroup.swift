@@ -34,25 +34,6 @@ public struct LinkGroup: HTML {
         self.url = target
     }
 
-    /// Creates a Link wrapping the provided content and pointing to the given page
-    /// - Parameters:
-    ///  - target: The new target to apply.
-    ///  - content: The user-facing content to show inside the `Link`.
-    public init(target: any StaticPage, @HTMLBuilder content: @escaping () -> some HTML) {
-        self.content = content()
-        self.url = target.path
-    }
-
-    /// Creates a `Link` wrapping the provided content and pointing to the path
-    /// of the `Article` instance you provide.
-    /// - Parameters:
-    ///   - article: An article in your site.
-    ///   - content: The user-facing content to show inside the `Link`.
-    public init(target article: Article, @HTMLBuilder content: @escaping () -> some HTML) {
-        self.content = content()
-        self.url = article.path
-    }
-
     /// Controls in which window this page should be opened.
     /// - Parameter target: The new target to apply.
     /// - Returns: A new `Link` instance with the updated target.
@@ -118,12 +99,7 @@ public struct LinkGroup: HTML {
     private func renderStandardLink() -> Markup {
         var linkAttributes = attributes.appending(classes: "link-plain", "d-inline-block")
 
-        guard let url = URL(string: url) else {
-            publishingContext.addWarning("One of your links uses an invalid URL.")
-            return Markup()
-        }
-
-        let path = publishingContext.linkPath(for: url)
+        let path = url
         linkAttributes.append(customAttributes: .init(name: "href", value: path))
         let contentHTML = content.markupString()
         return Markup("<a\(linkAttributes)>\(contentHTML)</a>")
