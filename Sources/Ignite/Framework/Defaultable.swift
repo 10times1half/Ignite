@@ -1,47 +1,44 @@
 //
-// Nullable.swift
-// Ignite
-// https://www.github.com/twostraws/Ignite
-// See LICENSE for license information.
+// Defaultable.swift
+// Ignite (KalSae HTML-Only Fork)
+// 원본: https://www.github.com/twostraws/Ignite
+// 라이선스: MIT (LICENSE 참조)
+//
+// [KalSae 포크 변경] HighlighterTheme extension 제거 (코드 하이라이팅 미사용)
 //
 
-/// A protocol that defines a type that can represent a "none" state without being optional
+/// Optional을 사용하지 않고 "기본값" 상태를 표현할 수 있는 프로토콜
 protocol Defaultable {
-    /// Whether this value represents a default value
+    /// 이 값이 기본값인지 여부
     var isDefault: Bool { get }
 }
 
 extension Font: Defaultable {
-    /// The empty font instance used as a default value
+    /// 기본값으로 사용되는 빈 폰트 인스턴스
     static var `default`: Font { Font(name: "", sources: []) }
 
-    /// Indicates whether this font is the default (empty) font
+    /// 이 폰트가 기본(빈) 폰트인지 여부
     var isDefault: Bool { self == .default }
 }
 
 extension Color: Defaultable {
-    /// The empty color instance used as a default value
+    /// 기본값으로 사용되는 빈 색상 인스턴스
     static var `default`: Color { Color(hex: "") }
 
-    /// Indicates whether this color is the default (empty) color
+    /// 이 색상이 기본(빈) 색상인지 여부
     var isDefault: Bool { self == .default }
 }
 
-extension HighlighterTheme: Defaultable {
-    /// Indicates whether this theme is the default (none) theme
-    var isDefault: Bool { self == .none }
-}
-
 extension TextDecoration: Defaultable {
-    /// Indicates whether this decoration is the default (underline) decoration
+    /// 이 장식이 기본(밑줄) 장식인지 여부
     var isDefault: Bool { self == .underline }
 }
 
 extension ResponsiveValues: Defaultable where Value == LengthUnit {
-    /// Indicates whether these values are the default (empty)
+    /// 이 반응형 값들이 기본(빈) 값인지 여부
     var isDefault: Bool { self == .default }
 
-    /// The empty values instance used as a default value
+    /// 기본값으로 사용되는 빈 반응형 값 인스턴스
     static var `default`: Self {
         .init(
             small: nil,

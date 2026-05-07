@@ -1,38 +1,35 @@
 //
 // Video.swift
-// Ignite
-// https://www.github.com/twostraws/Ignite
-// See LICENSE for license information.
+// Ignite (KalSae HTML-Only Fork)
+// 원본: https://www.github.com/twostraws/Ignite
+// 라이선스: MIT (LICENSE 참조)
+//
+// [KalSae 포크 변경] publishingContext.addWarning() 호출 제거
 //
 
-/// Shows a Video player on your page.
+/// 페이지에 비디오 플레이어를 표시합니다.
 public struct Video: InlineElement, LazyLoadable {
-    /// The content and behavior of this HTML.
+    /// 이 HTML의 콘텐츠와 동작
     public var body: some InlineElement { self }
 
-    /// The standard set of control attributes for HTML elements.
+    /// HTML 요소의 표준 제어 속성 집합
     public var attributes = CoreAttributes()
 
-    /// Whether this HTML belongs to the framework.
+    /// 이 HTML이 프레임워크에 속하는지 여부
     public var isPrimitive: Bool { true }
 
-    /// The files of the video to display. This should be specified relative to the
-    /// root of your site, e.g. /video/outforwalk.mp4.
+    /// 재생할 비디오 파일 경로 배열 (예: /video/outforwalk.mp4)
     private var files: [String]?
 
-    /// Creates one or multiple `Video` instance from the names of
-    /// files contained in your site's assets. This should be specified
-    /// relative to the root of your site, e.g. /video/outforwalk.mp4.
-    /// - Parameter files: A variable number of filenames, relative to the root of
-    ///   your site. e.g. /video/outforwalk.mp4.
+    /// 사이트 에셋 내 비디오 파일로 `Video` 인스턴스를 생성합니다.
+    /// - Parameter files: 사이트 루트 기준 상대 경로 (예: /video/outforwalk.mp4)
     public init(_ files: String...) {
         self.files = files
     }
 
-    /// Renders user video into the current publishing context.
-    /// - Parameters:
-    ///   - files: The user videos to render.
-    /// - Returns: The HTML for this element.
+    /// 비디오 파일들을 HTML로 렌더링합니다.
+    /// - Parameter files: 렌더링할 비디오 파일 경로 배열
+    /// - Returns: 이 요소의 HTML
     private func render(files: [String]) -> Markup {
         var output = "<video controls\(attributes)>"
 
@@ -47,20 +44,17 @@ public struct Video: InlineElement, LazyLoadable {
         return Markup(output)
     }
 
-    /// Renders this element using publishing context passed in.
-    /// - Returns: The HTML for this element.
+    /// 이 요소를 HTML 마크업으로 렌더링합니다.
+    /// [KalSae 포크] 파일이 없으면 빈 Markup을 반환합니다 (경고 없음).
+    /// - Returns: 이 요소의 HTML
     public func markup() -> Markup {
         guard let files = self.files else {
-            publishingContext.addWarning("""
-            Creating video with no name should not be possible. \
-            Please file a bug report on the Ignite project.
-            """)
             return Markup()
         }
         return render(files: files)
     }
 
-    // Dictionary mapping file extensions to VideoType
+    // 파일 확장자 → VideoType 매핑 딕셔너리
     let videoTypeDictionary: [String: VideoType] = [
         ".animaflex": .animaflex,
         ".asfplugin": .asfPlugin,

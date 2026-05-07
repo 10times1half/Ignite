@@ -1,12 +1,13 @@
 //
 // Theme-DefaultImplementation.swift
-// Ignite
-// https://www.github.com/twostraws/Ignite
-// See LICENSE for license information.
+// Ignite (KalSae HTML-Only Fork)
+// 원본: https://www.github.com/twostraws/Ignite
+// 라이선스: MIT (LICENSE 참조)
+//
+// [KalSae 포크 변경] syntaxHighlighterTheme 기본값 제거
 //
 
-/// Default implementation providing Bootstrap's default light theme values
-/// Default implementation providing Bootstrap's default theme values
+/// Bootstrap 기본 테마 값을 제공하는 기본 구현
 public extension Theme {
     var accent: Color {
         Color(red: 13, green: 110, blue: 253)
@@ -88,12 +89,6 @@ public extension Theme {
         Color(hex: "#dee2e6")
     }
 
-    var syntaxHighlighterTheme: HighlighterTheme {
-        colorScheme == .dark ?
-        .xcodeDark :
-        .automatic
-    }
-
     var link: Color {
         colorScheme == .dark ?
         Color(hex: "#6ea8fe") :
@@ -106,23 +101,23 @@ public extension Theme {
         Color(hex: "#0a58ca")
     }
 
-    // Links
+    // 링크 스타일
     var linkDecoration: TextDecoration { .underline }
 
-    // Font Families
+    // 폰트
     var monospaceFont: Font { .default }
     var font: Font { .default }
 
-    // Font Sizes
+    // 폰트 크기
     var rootFontSize: LengthUnit { .default }
     var bodyFontSize: ResponsiveValues { .default }
     var inlineCodeFontSize: LengthUnit { .default }
     var codeBlockFontSize: LengthUnit { .default }
 
-    // Line Heights
+    // 줄 높이
     var lineSpacing: LengthUnit { .default }
 
-    // Heading Sizes
+    // 제목 크기
     var h1Size: ResponsiveValues { .default }
     var h2Size: ResponsiveValues { .default }
     var h3Size: ResponsiveValues { .default }
@@ -130,38 +125,38 @@ public extension Theme {
     var h5Size: ResponsiveValues { .default }
     var h6Size: ResponsiveValues { .default }
 
-    // Heading Properties
+    // 제목 속성
     var headingFont: Font { .default }
     var headingFontWeight: FontWeight { .default }
     var headingLineSpacing: LengthUnit { .default }
 
-    // Bottom Margins
+    // 하단 여백
     var headingBottomMargin: LengthUnit { .default }
     var paragraphBottomMargin: LengthUnit { .default }
 
-    // Breakpoints
+    // 브레이크포인트
     var breakpoints: ResponsiveValues { .default}
 
-    // Maximum widths
+    // 최대 너비
     var siteWidth: ResponsiveValues { .default }
 }
 
 public extension Theme {
-    /// The type name, removing the word "Theme" if present
+    /// 타입명에서 "Theme" 단어를 제거한 이름
     var name: String {
         Self.baseName.titleCase()
     }
 }
 
 extension Theme {
-    /// A unique identifier derived from the type name.
+    /// 타입명에서 파생된 고유 식별자
     static var idPrefix: String {
         Self.baseName
             .kebabCased()
             .lowercased()
     }
 
-    /// A unique identifier derived from the type name, appending "-light" or "-dark" based on `colorScheme`.
+    /// colorScheme에 따라 "-light" 또는 "-dark"를 붙인 고유 식별자
     var cssID: String {
         let baseID = Self.idPrefix
         switch colorScheme {

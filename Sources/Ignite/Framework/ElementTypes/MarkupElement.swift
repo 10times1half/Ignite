@@ -1,32 +1,29 @@
 //
-// HTMLRenderable.swift
-// Ignite
-// https://www.github.com/twostraws/Ignite
-// See LICENSE for license information.
+// MarkupElement.swift
+// Ignite (KalSae HTML-Only Fork)
+// 원본: https://www.github.com/twostraws/Ignite
+// 라이선스: MIT (LICENSE 참조)
+//
+// [KalSae 포크 변경] publishingContext 연산 프로퍼티 제거
 //
 
-/// A protocol that defines the common behavior between all HTML types.
-/// - Warning: Do not conform to this type directly.
+/// 모든 HTML 타입의 공통 동작을 정의하는 프로토콜
+/// - Warning: 이 타입을 직접 conform하지 마세요. `HTML` 또는 `InlineElement`을 사용하세요.
 @MainActor
 public protocol MarkupElement: Sendable {
-    /// The standard set of control attributes for HTML elements.
+    /// HTML 요소의 표준 제어 속성 집합 (class, id, style, data 등)
     var attributes: CoreAttributes { get set }
 
-    /// Converts this element and its children into HTML markup.
-    /// - Returns: A string containing the HTML markup
+    /// 이 요소와 자식 요소를 HTML 마크업으로 변환합니다.
+    /// - Returns: HTML 마크업 문자열을 담은 `Markup` 인스턴스
     func markup() -> Markup
 }
 
 extension MarkupElement {
-    /// Converts this element and its children into an HTML string with attributes.
-    /// - Returns: A string containing the HTML markup
+    /// 이 요소를 속성이 포함된 HTML 문자열로 변환합니다.
+    /// - Returns: HTML 마크업 문자열
     func markupString() -> String {
         markup().string
-    }
-
-    /// The publishing context of this site.
-    var publishingContext: PublishingContext {
-        PublishingContext.shared
     }
 
     func `is`(_ elementType: any MarkupElement.Type) -> Bool {

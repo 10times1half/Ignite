@@ -1,37 +1,35 @@
 //
 // Audio.swift
-// Ignite
-// https://www.github.com/twostraws/Ignite
-// See LICENSE for license information.
+// Ignite (KalSae HTML-Only Fork)
+// 원본: https://www.github.com/twostraws/Ignite
+// 라이선스: MIT (LICENSE 참조)
+//
+// [KalSae 포크 변경] publishingContext.addWarning() 호출 제거
 //
 
-/// Plays Audio on your page.
+/// 페이지에 오디오를 재생합니다.
 public struct Audio: InlineElement, LazyLoadable {
-    /// The content and behavior of this HTML.
+    /// 이 HTML의 콘텐츠와 동작
     public var body: some InlineElement { self }
 
-    /// The standard set of control attributes for HTML elements.
+    /// HTML 요소의 표준 제어 속성 집합
     public var attributes = CoreAttributes()
 
-    /// Whether this HTML belongs to the framework.
+    /// 이 HTML이 프레임워크에 속하는지 여부
     public var isPrimitive: Bool { true }
 
-    /// The name of the audio to display. This should be specified relative
-    /// to the root of your site, e.g. /audio/bark.mp3.
+    /// 재생할 오디오 파일 경로 배열 (예: /audio/bark.mp3)
     private var files: [String]?
 
-    /// Creates an `Audio` instance from the name of a file contained
-    /// in your site's assets. This should be specified relative to the root
-    /// of your site, e.g. /audio/bark.mp3.
-    /// - Parameter files: A variable number of filenames, relative to the root of your site. e.g. /audio/bark.mp3
+    /// 사이트 에셋 내 오디오 파일로 `Audio` 인스턴스를 생성합니다.
+    /// - Parameter files: 사이트 루트 기준 상대 경로 (예: /audio/bark.mp3)
     public init(_ files: String...) {
         self.files = files
     }
 
-    /// Renders a user audio into the current publishing context.
-    /// - Parameters:
-    ///   - files: The user audios to render.
-    /// - Returns: The HTML for this element.
+    /// 오디오 파일들을 HTML로 렌더링합니다.
+    /// - Parameter files: 렌더링할 오디오 파일 경로 배열
+    /// - Returns: 이 요소의 HTML
     private func render(files: [String]) -> Markup {
         var output = ""
 
@@ -45,21 +43,18 @@ public struct Audio: InlineElement, LazyLoadable {
         return Markup("<audio controls\(attributes)>\(output)</audio>")
     }
 
-    /// Renders this element using publishing context passed in.
-    /// - Returns: The HTML for this element.
+    /// 이 요소를 HTML 마크업으로 렌더링합니다.
+    /// [KalSae 포크] 파일이 없으면 빈 Markup을 반환합니다 (경고 없음).
+    /// - Returns: 이 요소의 HTML
     public func markup() -> Markup {
         guard let files = files else {
-            publishingContext.addWarning("""
-            Creating audio with no name should not be possible. \
-            Please file a bug report on the Ignite project.
-            """)
             return Markup()
         }
 
         return render(files: files)
     }
 
-    // Dictionary mapping file extensions to AudioType
+    // 파일 확장자 → AudioType 매핑 딕셔너리
     let audioTypeMapping: [String: AudioType] = [
         ".aac": .aac,
         ".aifc": .aifc,

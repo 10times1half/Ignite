@@ -1,331 +1,207 @@
-<p align="center">
-    <img src="images/logo.png" alt="Ignite logo" width="256" height="234" />
-</p>
+# Ignite (KalSae HTML-Only Fork)
 
-<p align="center">
-    <img src="https://img.shields.io/badge/macOS-14.0+-2980b9.svg" />
-    <img src="https://img.shields.io/badge/swift-6.0+-8e44ad.svg" />
-    <a href="https://twitter.com/twostraws">
-        <img src="https://img.shields.io/badge/Contact-@twostraws-95a5a6.svg?style=flat" alt="Twitter: @twostraws" />
-    </a>
-</p>
+> Swift DSL → HTML 변환 라이브러리  
+> [Ignite](https://github.com/twostraws/Ignite)(MIT)에서 퍼블리싱 계층을 제거하고,  
+> [KalSae](https://github.com/10times1half/KalSae) WebView 프론트엔드용으로 경량화한 포크입니다.
 
-Ignite is a static site builder for Swift developers, offering an expressive, powerful API to build beautiful websites that work great on all devices.
+## 설치
 
-Ignite doesn't try to convert SwiftUI code to HTML, or simply map HTML tags to Swift code. Instead, it aims to use SwiftUI-like syntax to help you build great websites even if you have no knowledge of HTML or CSS.
-
-
-## Getting started
-
-The easiest way to get started is to use the Ignite command-line tool included with this package:
-
-1. Run `git clone https://github.com/twostraws/Ignite` to clone this repository to your computer.
-2. Change into the new directory, e.g. `cd Ignite`.
-3. Now run `make` to build the Ignite command-line tool.
-4. Then run `make install` to install the Ignite command-line tool to `/usr/local/bin`.
-5. If that command fails because of permissions issues, you should run `sudo make install` instead.
-
-> [!Note]
-> To change install directory: `make install PREFIX_DIR=/my/install/dir`
-
-Once that command-line tool is installed, you can run the following command to create a new site called ExampleSite:
-
-```shell
-ignite new ExampleSite
-```
-
-Once installed, the command-line tool is helpful for running a local web server for testing and for building your project.
-
-To build your example site, run these commands:
-```shell
-cd ExampleSite
-ignite build
-```
-
-That creates a new folder called Build with the site files. Now you can preview it. (For more details on how to build, see "Using the command-line tool" below.)
-
-## Important: Previewing your site
-
-> [!Tip]
-> Using the Ignite tool to run a local web server is the best way to preview your site.
-
-Once you've built your site and are ready to see how it looks, do *not* just double-click one of the files in Finder. This will open the file directly in your browser, which means it won't know how to locate the rest of your site – the stylesheets, JavaScript code, etc – so it will not display correctly.
-
-Instead, the best way to preview your site is using the Ignite CLI tool, which you installed in Getting Started above:
-
-- Run `ignite run --preview` to preview your site and open it in your web browser.
-
-That will open your web browser straight to your site. You can then return to Xcode and make changes to your site freely – every time you press Cmd+R to build your site, you can refresh your browser to see the changes.
-
-
-## See it in action
-
-The [IgniteSamples](https://github.com/twostraws/IgniteSamples) repository contains lots of sample code for you to try out – you can see it running here: You can see all the output from this repository running here: <https://ignitesamples.hackingwithswift.com>.
-
-Basic Ignite code looks similar to SwiftUI code:
-
-```swift
-Text("Swift rocks")
-    .font(.title1)
-    
-Text(markdown: "Add *inline* Markdown")
-    .foregroundStyle(.secondary)
-
-Link("Swift", target: "https://www.swift.org")
-    .linkStyle(.button)
-
-Divider()
-
-Image("logo.jpg")
-    .accessibilityLabel("The Swift logo.")
-    .padding()
-```
-
-But it also includes a range of more advanced controls such as dropdown buttons:
-
-```swift
-Dropdown("Click Me") {
-    Link("Accordions", target: AccordionExamples())
-    Link("Carousels", target: CarouselExamples())
-    Divider()
-    Text("Or you can just…")
-    Link("Go back home", target: "/")
-}
-.role(.primary)
-```
-
-![A dropdown button showing links, a divider, and some text.](images/dropdown.png)
-
-It includes accordions that show or hide items based on what is selected:
-
-```swift
-Accordion {
-    Item("First", startsOpen: true) {
-        Text("This item will start open by default.")
-    }
-
-    Item("Second") {
-        Text("This is the second accordion item.")
-    }
-
-    Item("Third") {
-        Text("This is the third accordion item.")
-    }
-}
-.openMode(.individual)
-```
-
-![An accordion of three items, where the first one is open.](images/accordions.png)
- 
-It has automatic code syntax highlighting for a dozen languages:
-
-```swift
-CodeBlock(.swift) { """
-struct ContentView: View {
-    var body: some View {
-        Text("Hello, Swift!")
-    }
-}
-""" }
-```
-
-![Swift code with syntax highlighting.](images/code.png)
-
-Plus carousels, badges, alerts, tables, and so much more.
-
-There is a separate repository called [IgniteSamples](https://github.com/twostraws/IgniteSamples), which provides sample code for a wide variety of protocols, elements, and modifiers used by Ignite.
-
-If you're looking for code to help you get started, that's the best place – you can build that site and run it locally, the copy and paste any code you want to try.
-
-
-## Folder structure
-
-Ignite sites are just Swift package, but they use a specific folder structure to help build your site effectively.
-
-- **Assets**: This is where your custom site assets should be placed, using whatever subfolders you want.
-- **Build**: This is created automatically by Ignite whenever you build your site. Do not place important information here, because it will be deleted on your next build.
-- **Content:** This is where you want to place any Markdown files for posts you want, again using any subfolder structure you want. (Optional)
-- **Includes:** This is where you place any custom HTML you've written that you want to include. (Optional)
-- **Sources:** This is where you'll place all your Swift code for your site, using any subfolder structure that suits you.
-
-This folder structure is already in place in the [Ignite Starter Template](https://github.com/twostraws/IgniteStarter) repository, and I recommend you start with that.
-
-Alternatively, you can bring Ignite into an existing project using Swift Package Manager by adding a package dependency for <https://github.com/twostraws/Ignite>.
-
-Once that completes, import Ignite into your Swift code wherever needed:
-
-```swift
-import Ignite
-```
-
-## Create a layout to render Markdown files
-
-Adding Markdown files to **Content** will render these to HTML pages and include them in **Build** with their respective folder structure, minus the **Content** part.
-
-For example, adding a new file called `apps.md` to **Content** means having this folder structure:
+### KalSae CLI로 프로젝트 생성 (권장)
 
 ```bash
-├── Content
-│   └── apps.md
+kalsae new MyApp --frontend ignite
 ```
 
-And it results in this **Build** structure:
+Ignite를 프론트엔드로 선택하면 생성된 프로젝트의 Package.swift에 자동으로 의존성이 추가됩니다.
 
-```bash
-├── Build
-│   ├── …
-│   ├── apps
-│   │   └── index.html
-│   ├── …
-```
-
-**A precondition for this to work is to have a layout available to render your content.** If you don't have a valid layout in place, Ignite will issue a warning saying "Your site must provide at least one layout in order to render Markdown."
-
-You can create custom layouts for articles by making types conform to the `ArticlePage` protocol, which will automatically be given an `article` property to access the content it is displaying. For example:
+### 기존 프로젝트에 수동 추가
 
 ```swift
-import Foundation
+// Package.swift
+dependencies: [
+    .package(url: "https://github.com/10times1half/Ignite.git", branch: "kalsae-html-only"),
+]
+
+// 타겟: .target(name: "YourApp", dependencies: ["KalSae", "Ignite"])
+```
+
+> KalSae 프레임워크 자체는 Ignite에 의존하지 않습니다.  
+> Ignite는 앱 프로젝트의 선택적 의존성으로, 필요할 때만 추가하면 됩니다.  
+> 유일한 외부 의존성: `swift-collections` (OrderedSet)
+
+## 사용법
+
+```swift
+import KalSae
 import Ignite
 
-struct CustomArticleLayout: ArticlePage {
-    var body: some HTML {
-        Text(article.title)
-            .font(.title1)
+// Swift DSL로 HTML 문자열 생성
+let html = Section {
+    Text("Hello KalSae!")
+        .font(.title1)
+        .foregroundStyle(.red)
+        .padding(.medium)
 
-        if let image = article.image {
-            Image(image, description: article.imageDescription)
-                .resizable()
-                .cornerRadius(20)
-                .frame(maxHeight: 300)
-        }
+    Button("Click me")
+        .role(.primary)
+        .onClick { ShowAlert(message: "눌렸습니다!") }
 
-        if let tags = article.tags {
-            Section {
-                Text("Tagged with: \(tags.joined(separator: ", "))")
-
-                Text("\(article.estimatedWordCount) words; \(article.estimatedReadingMinutes) minutes to read.")
-            }
-        }
-
-        Text(article.text)
+    Card {
+        Text("카드 내용")
+    } header: {
+        "카드 제목"
     }
-}
+    .cornerRadius(8)
+    .shadow(radius: 4)
+}.markupString()
+
+// KalSae WebView에 로드
+await app.loadHTML(html)
 ```
 
-Once you've defined a custom layout, you should add it to your `Site` struct. This can be done by adding this new layout to the `articlePages` property of the site, like this:
+## 포함된 기능
+
+| 기능 | 설명 |
+|------|------|
+| **50+ HTML 요소** | Text, Button, Card, Modal, Table, List, Grid, Form, Accordion, Alert, Badge 등 |
+| **40+ 모디파이어** | padding, margin, font, foregroundStyle, background, shadow, border, opacity, cornerRadius 등 |
+| **애니메이션** | CSS 키프레임, 트랜지션, hover 이펙트 |
+| **액션** | onClick, onHover 등 ShowAlert, ShowModal, HideElement, ToggleElementVisibility 등 |
+| **테마** | Light/Dark 테마 정의, Bootstrap 변수 커스터마이징 |
+| **커스텀 스타일** | 재사용 가능한 `Style` 프로토콜 (환경 조건별 대응) |
+| **Result Builder** | `@HTMLBuilder`, `@InlineElementBuilder` 등 SwiftUI 방식의 선언적 구문 |
+
+## 제거된 기능 (vs 원본 Ignite)
+
+- 정적 사이트 퍼블리싱 (`PublishingContext`, sitemap, RSS, robots.txt)
+- `Site`, `StaticPage`, `Layout`, `Article` 프레임워크
+- `Head`, `Body`, `MetaTag`, `CodeBlock` 요소 (KalSae WebView가 문서 구조 관리)
+- Markdown → HTML 파서 (`swift-markdown` 의존성 제거)
+- `SwiftSoup` 의존성 제거
+- CLI 도구 (`IgniteCLI`)
+- 번들 리소스 (CSS/JS/폰트)
+
+## 사용 가능한 요소 목록
+
+**레이아웃:** Section, Group, Grid, Row, Column, HStack, VStack, ZStack, Spacer, Divider  
+**텍스트:** Text, Span, Strong, Emphasis, Strikethrough, Underline, Code, Abbreviation  
+**인터랙티브:** Button, ButtonGroup, Link, LinkGroup, Dropdown, Form, Input, TextField  
+**컴포넌트:** Card, Accordion, Alert, Badge, Modal, Carousel, Table, List, NavigationBar  
+**미디어:** Image (경로 직접 지정), Audio, Video, Embed  
+**제어:** ForEach, InlineForEach, Tag, Label, ControlGroup
+
+## 주의사항
+
+- `Text(markdown:)` → Markdown 파싱 없이 문자열을 그대로 사용합니다.  
+  Markdown 변환이 필요하면 별도 라이브러리를 사용하세요.
+- `Image` → `@2x`/`~dark` 변형 자동 감지 불가. 전체 경로로 직접 지정하세요.
+- `Link` → URL 문자열을 그대로 href에 사용합니다 (사이트 내부 경로 변환 없음).
+- `NavigationBar`/`Dropdown` → active 상태 자동 추적 없음.  
+  필요하면 `.class("active")`로 직접 추가하세요.
+- **Bootstrap CSS 미포함** → KalSae 프론트엔드 HTML에 직접 포함하거나 CDN을 사용하세요.
+
+## 수정 파일 상세
+
+이 포크에서 원본 대비 수정된 파일 목록입니다.  
+모든 수정 파일에는 `[KalSae 포크]` 또는 `[KalSae 포크 변경]` 태그가 달려 있어 upstream 머지 시 충돌 지점을 쉽게 식별할 수 있습니다.
+
+### Package.swift
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `Package.swift` | 전면 재작성. IgniteCLI/테스트 타겟 제거, swift-markdown·SwiftSoup·ArgumentParser 의존성 제거, iOS 17+ 추가 |
+
+### Elements (10개)
+
+| 파일 | 역할 | 변경 내용 |
+|------|------|----------|
+| `Text.swift` | 단락/제목 텍스트 | `init(markdown:)` Markdown 파싱 제거, `init(markup:parser:)` 삭제 |
+| `Link.swift` | 하이퍼링크 | StaticPage/Article init 제거, URL을 그대로 href에 사용 |
+| `LinkGroup.swift` | 블록 하이퍼링크 | Link.swift와 동일 패턴 적용 |
+| `Image.swift` | 이미지 | 데드코드 제거 (findVariants, generateSourceSet 등), 경로 직접 src에 사용 |
+| `Script.swift` | JavaScript 삽입 | HeadElement → HTML 변경, file.absoluteString 직접 사용 |
+| `Audio.swift` | 오디오 재생 | publishingContext.addWarning() 제거 |
+| `Video.swift` | 비디오 재생 | publishingContext.addWarning() 제거 |
+| `Embed.swift` | 외부 콘텐츠 임베드 | 변경 적음 (독립적 동작) |
+| `NavigationBar.swift` | 상단 내비게이션 바 | active 상태 자동 추적 제거 |
+| `Dropdown.swift` | 드롭다운 메뉴 | hasActiveItem 제거 (항상 false였던 변수) |
+
+### Modifiers & Framework (5개)
+
+| 파일 | 역할 | 변경 내용 |
+|------|------|----------|
+| `Hint.swift` | 툴팁 모디파이어 | Markdown 힌트를 일반 텍스트로 폴백 처리 |
+| `InlineStyleModifier.swift` | 인라인 CSS 스타일 | HeadElement extension 제거 |
+| `ElementBuilder.swift` | Result Builder | HeadElementBuilder 등 퍼블리싱 관련 typealias 제거 |
+| `Defaultable.swift` | 기본값 프로토콜 | HighlighterTheme extension 제거 |
+| `MarkupElement.swift` | 핵심 HTML 프로토콜 | publishingContext 연산 프로퍼티 제거 |
+
+### Themes (2개)
+
+| 파일 | 역할 | 변경 내용 |
+|------|------|----------|
+| `Theme.swift` | 테마 프로토콜 정의 | syntaxHighlighterTheme 프로퍼티 제거 |
+| `Theme-DefaultImplementation.swift` | Bootstrap 기본 테마값 | syntaxHighlighterTheme 기본값 제거 |
+
+## 패키지 버전 관리
+
+### 브랜치 추적 (기본)
 
 ```swift
-struct ExampleSite: Site {    
-    var name = "Hello World"
-    var url = URL(static: "https://www.example.com")
-
-    var homePage = Home()
-    var layout = MyLayout()
-
-    /* This part adds the custom layout */
-    var articlePages: [any ArticlePage] {
-        CustomArticleLayout()
-    }
-}
+.package(url: "https://github.com/10times1half/Ignite.git", branch: "kalsae-html-only")
 ```
 
-The `Site` protocol provides sensible defaults for most properties, allowing you to focus on implementing only the customizations your site needs. As shown in the above, only a few properties like `name`, `url`, `homePage`, and `layout` require explicit implementation.
+`kalsae-html-only` 브랜치에 머지 후 push하면 `swift package update` 시 자동 반영됩니다.
 
-## Using the command-line tool
+### 커밋 고정 (안정성 우선)
 
-Once you have installed the Ignite command-line tool from this repository, you can use it in various ways.
-
-First, you can create new site like this:
-
-```shell
-ignite new YourSite
+```swift
+.package(url: "https://github.com/10times1half/Ignite.git", revision: "6237215f")
 ```
 
-When that completes, it will tell you the commands to use to open your new site for editing in Xcode:
+특정 커밋에 고정하면 의도하지 않은 변경을 방지할 수 있습니다.  
+업데이트가 필요할 때 revision 값을 수동으로 변경하세요.
 
-```shell
-cd YourSite
-open Package.swift
+> **권장:** Ignite 원본이 활발히 변하는 시기에는 **커밋 고정**, 안정기에는 **브랜치 추적**이 적합합니다.
+
+## 업스트림 동기화
+
+### 기본 동기화
+
+```bash
+# upstream 등록 (최초 1회)
+git remote add upstream https://github.com/twostraws/Ignite.git
+
+# 동기화
+git fetch upstream
+git log upstream/main --oneline -10  # 변경 내용 확인
+git merge upstream/main              # kalsae-html-only 브랜치에서
+# 충돌 해결 후 push
+git push origin kalsae-html-only
 ```
 
-> [!Tip]
-> If you want to build with Xcode, go to the Product menu and choose Destination > My Mac.
+### 동기화 시점
 
-Back in your terminal window, once you have run that `cd` command the current working directory of your terminal is your website's directory. This means you can run the following command to build your site, rather than using Xcode:
+매번 동기화할 필요 없습니다. 다음 경우에만 동기화하세요.
 
-```shell
-ignite build
-```
+| 상황 | 액션 |
+|------|------|
+| 필요한 새 요소/모디파이어가 추가됨 | merge |
+| 버그 수정이 올라옴 | merge |
+| KalSae가 잘 동작 중 | 그대로 유지 |
 
-That will convert all your Swift code to HTML in your **Build** folder. 
+### 충돌 범위
 
-You can also run this command:
+- **삭제한 파일이 upstream에서 수정되면** → 충돌 없이 무시됩니다 (이미 삭제했으므로)
+- **새 요소/모디파이어가 추가되면** → `PublishingContext`를 참조하지 않는 한 자동 머지됨
+- **수정한 ~15개 파일** → 여기서만 충돌 발생 가능 (Text, Link, Image, Script 등)
+- **upstream이 `PublishingContext` API를 변경하면** → 수정한 파일들에서 충돌 발생
 
-```shell
-ignite run --preview
-```
+## 라이선스
 
-That will launch a local web server you should use to preview your site, and also open it in your browser. If you're working in Xcode, you can continue performing builds as normal then refresh your browser to see your changes.
+이 포크는 원본 [Ignite](https://github.com/twostraws/Ignite)의 MIT 라이선스를 그대로 따릅니다.
 
-> [!Tip]
-> The Ignite command-line tool has various configuration options available. Run `ignite help` to get general help, or add `help` before a subcommand to get further details, e.g. `ignite help run`.
-
-
-## Websites made with Ignite
-
-| Website                | Repository                                |
-|------------------------|-------------------------------------------|
-| [Lighting Ignite on Fire](https://jptoro.dev/lighting-ignite-on-fire/) | [GitHub](https://github.com/JPToroDev/Lighting-Ignite-on-Fire) |
-| [jcalderita Portfolio](https://jcalderita.com) | [GitHub](https://github.com/jcalderita/portfolio-web-ignite) |
-| [Photo Club Hub](https://www.fcDeGender.nl/clubs) | [GitHub](https://github.com/vdhamer/Photo-Club-Hub-HTML) |
-| [sookim-1's T.W.L](https://sookim-1.github.io) | [GitHub](https://github.com/sookim-1/blog-website) |
-| [try! Swift Tokyo](https://tryswift.jp/en/) | [GitHub](https://github.com/tryswift/try-swift-tokyo) |
-| [Tomo Codes](https://tomo.codes) | [GitHub](https://github.com/TomaszLizer/TomoCodes) |
-| [Ryan Token](https://www.ryantoken.com) | [GitHub](https://github.com/r-token/ryantoken.com-v4-ignite) |
-| [Codaglot](https://codaglot.skjorn.name) | [GitHub](https://github.com/skjorn/codaglot-showcase) |
-
-
-## Contributing
-
-I welcome all contributions, whether that's adding new tests, fixing up existing code, adding comments, or improving this README – everyone is welcome!
-
-- You must comment your code thoroughly, using documentation comments or regular comments as applicable.
-- Please ensure you run SwiftLint in the Sources directory, and fix all outstanding issues.
-- All code must be licensed under the MIT license so it can benefit the most people.
-- Ensure you build IgniteSamples using your modified copy of Ignite, and compare it to [the live version](https://github.com/twostraws/IgniteSamples).
-- If you create a new element, please consider adding it to the IgniteSamples repository, so folks can see it more easily.
-
-
-## Credits
-
-Ignite is an open-source project with many contributors, including Paul Hudson, JP Toro, Henrik Christensen, Michael Freiwald, and Jobert Sá.
-
-All contributions are welcome, but please ensure you abide by the [Code of Conduct](CODE_OF_CONDUCT.md).
-
-
-## License
-
-MIT License.
-
-Copyright (c) 2024 Paul Hudson.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Ignite was originally created by [Paul Hudson](https://twitter.com/twostraws), who writes [free Swift tutorials over at Hacking with Swift](https://www.hackingwithswift.com). It’s available under the MIT license, which permits commercial use, modification, distribution, and private use.
-
-
-<p align="center">
-    <a href="https://www.hackingwithswift.com/plus">
-    <img src="https://www.hackingwithswift.com/img/hws-plus-banner@2x.jpg" alt="Hacking with Swift+ logo" style="max-width: 100%;" /></a>
-</p>
-
-<p align="center">&nbsp;</p>
-
-<p align="center">
-    <a href="https://www.hackingwithswift.com"><img src="https://www.hackingwithswift.com/img/hws-button@2x.png" alt="Hacking with Swift logo" width="66" height="75" /></a><br />
-    A Hacking with Swift Project
-</p>
+- 원본 라이선스: [LICENSE](LICENSE) 참조
+- 포크에서의 변경: 퍼블리싱 계층 제거 및 KalSae 프론트엔드용 경량화
+- 저작권 표기: 원본 저자(Paul Hudson / @twostraws) 표기를 유지합니다
+- MIT 라이선스이므로 상업적 사용, 수정, 배포, 서브라이선스 모두 가능합니다

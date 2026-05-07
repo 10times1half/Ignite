@@ -1,64 +1,67 @@
 //
 // Link.swift
-// Ignite
-// https://www.github.com/twostraws/Ignite
-// See LICENSE for license information.
+// Ignite (KalSae HTML-Only Fork)
+// 원본: https://www.github.com/twostraws/Ignite
+// 라이선스: MIT (LICENSE 참조)
+//
+// [KalSae 포크 변경] StaticPage/Article init 제거, URL을 그대로 href에 사용
+//   (원본은 publishingContext.linkPath(for:)로 변환)
 //
 
 import Foundation
 
-/// A hyperlink to another resource on this site or elsewhere.
+/// 이 사이트 또는 외부 리소스로의 하이퍼링크
 public struct Link: InlineElement, NavigationItem, DropdownItem {
-    /// The visual style to apply to the link.
+    /// 링크에 적용할 시각적 스타일
     public enum Style: Equatable {
-        /// A link with an underline effect.
+        /// 밑줄 효과가 있는 링크
         /// - Parameters:
-        ///   - base: The underline prominence in the link's normal state.
-        ///   - hover: The underline prominence when hovering over the link.
+        ///   - base: 기본 상태의 밑줄 강도
+        ///   - hover: 호버 시 밑줄 강도
         case underline(_ base: UnderlineProminence, hover: UnderlineProminence)
 
-        /// A link that appears and behaves like a button.
+        /// 버튼처럼 보이고 동작하는 링크
         case button
 
-        /// Creates an underline-style link with uniform prominence for both normal and hover states.
-        /// - Parameter prominence: The underline prominence to use for both states.
-        /// - Returns: A `LinkStyle` with identical base and hover prominence.
+        /// 기본/호버 상태 모두 동일한 밑줄 강도로 링크 스타일을 생성합니다.
+        /// - Parameter prominence: 양쪽 상태에 사용할 밑줄 강도
+        /// - Returns: 동일한 기본/호버 강도를 가진 `LinkStyle`
         public static func underline(_ prominence: UnderlineProminence) -> Self {
             .underline(prominence, hover: prominence)
         }
 
-        /// The default link style with heavy underline prominence.
+        /// 기본 링크 스타일 (heavy 밑줄)
         public static var automatic: Style { .underline(.heavy, hover: .heavy) }
     }
 
-    /// The content and behavior of this HTML.
+    /// 이 HTML의 콘텐츠와 동작
     public var body: some InlineElement { self }
 
-    /// The standard set of control attributes for HTML elements.
+    /// HTML 요소의 표준 제어 속성 집합
     public var attributes = CoreAttributes()
 
-    /// Whether this HTML belongs to the framework.
+    /// 이 HTML이 프레임워크에 속하는지 여부
     public var isPrimitive: Bool { true }
 
-    /// How a `NavigationBar` displays this item at different breakpoints.
+    /// `NavigationBar`에서 이 항목의 브레이크포인트별 표시 방식
     public var navigationBarVisibility: NavigationBarVisibility = .automatic
 
-    /// The content to display inside this link.
+    /// 링크 내부에 표시할 콘텐츠
     var content: any InlineElement
 
-    /// The location to which this link should direct users.
+    /// 링크가 가리키는 URL
     var url: String
 
-    /// The style for this link. Defaults to `.automatic`.
+    /// 링크 스타일. 기본값: `.automatic`
     var style = Style.automatic
 
-    /// When rendered with the `.button` style, this controls the button's size.
+    /// `.button` 스타일로 렌더링할 때의 버튼 크기
     var size = Button.Size.medium
 
-    /// The role of this link, which applies various styling effects.
+    /// 링크의 역할 (다양한 스타일 효과 적용)
     var role = Role.default
 
-    /// Returns an array containing the correct CSS classes to style this link.
+    /// 이 링크를 스타일링하는 데 필요한 CSS 클래스 배열을 반환합니다.
     var linkClasses: [String] {
         var outputClasses = [String]()
 
@@ -81,80 +84,36 @@ public struct Link: InlineElement, NavigationItem, DropdownItem {
         return outputClasses
     }
 
-    /// Creates a `Link` instance from the content you provide, linking to the
-    /// URL specified.
+    /// 제공된 콘텐츠로 `Link` 인스턴스를 생성합니다.
     /// - Parameters:
-    ///   - content: The user-facing content to show inside the `Link`.
-    ///   - target: The URL you want to link to.
+    ///   - content: 링크 내부에 표시할 콘텐츠
+    ///   - target: 링크할 URL
     public init(_ content: any InlineElement, target: String) {
         self.content = content
         self.url = target
     }
 
-    /// Creates a `Link` instance from the content you provide, linking to the
-    /// URL specified.
+    /// 빌더를 사용하여 `Link` 인스턴스를 생성합니다.
     /// - Parameters:
-    ///   - content: The user-facing content to show inside the `Link`.
-    ///   - target: The URL you want to link to.
+    ///   - content: 링크 내부에 표시할 콘텐츠
+    ///   - target: 링크할 URL
     public init(target: String, @InlineElementBuilder content: () -> some InlineElement) {
         self.content = content()
         self.url = target
     }
 
-    /// Creates a `Link` wrapping the provided content and pointing to the path
-    /// of the `Article` instance you provide.
+    /// URL 타입으로 `Link` 인스턴스를 생성합니다.
     /// - Parameters:
-    ///   - article: An article in your site.
-    ///   - content: The user-facing content to show inside the `Link`.
-    public init(
-        target article: Article,
-        @InlineElementBuilder content: @escaping () -> some InlineElement
-    ) {
-        self.content = content()
-        self.url = article.path
-    }
-
-    /// Creates a `Link` instance from the content you provide, linking to the path
-    /// belonging to the specified `Page`.
-    /// - Parameters:
-    ///   - content: The user-facing content to show inside the `Link`.
-    ///   - target: The `Page` you want to link to.
-    public init(_ content: some InlineElement, target: any StaticPage) {
-        self.content = content
-        self.url = target.path
-    }
-
-    /// Creates a `Link` instance from the content you provide, linking to the
-    /// URL specified.
-    /// - Parameters:
-    ///   - content: The user-facing content to show inside the `Link`.
-    ///   - target: The URL you want to link to.
+    ///   - content: 링크 내부에 표시할 문자열
+    ///   - target: 링크할 URL
     public init(_ content: String, target: URL) {
         self.content = content
         self.url = target.absoluteString
     }
 
-    /// Convenience initializer that creates a new `Link` instance using the
-    /// path of the `Article` instance you provide.
-    /// - Parameters:
-    ///    - content: The user-facing content to show inside the `Link`.
-    ///    - target: An article in your site.
-    public init(_ content: String, target: Article) {
-        self.content = content
-        self.url = target.path
-    }
-
-    /// Convenience initializer that creates a new `Link` instance using the
-    /// title and path of the `Article` instance you provide.
-    /// - Parameter article: A piece of content from your site.
-    public init(_ article: Article) {
-        self.content = article.title
-        self.url = article.path
-    }
-
-    /// Controls in which window this page should be opened.
-    /// - Parameter target: The new target to apply.
-    /// - Returns: A new `Link` instance with the updated target.
+    /// 이 페이지를 열 창을 제어합니다.
+    /// - Parameter target: 적용할 새 타겟
+    /// - Returns: 타겟이 업데이트된 새 `Link` 인스턴스
     public func target(_ target: LinkTarget) -> Self {
         if let name = target.name {
             var copy = self
@@ -166,34 +125,32 @@ public struct Link: InlineElement, NavigationItem, DropdownItem {
         }
     }
 
-    /// Adjusts the style of this link, when rendered in the `.button` style.
-    /// - Parameter size: The new style.
-    /// - Returns: A new `Link` instance with the updated size.
+    /// `.button` 스타일 렌더링 시 버튼 크기를 조정합니다.
+    /// - Parameter size: 새 크기
+    /// - Returns: 크기가 업데이트된 새 `Link` 인스턴스
     public func buttonSize(_ size: Button.Size) -> Self {
         var copy = self
         copy.size = size
         return copy
     }
 
-    /// Adjusts the role of this link.
-    /// - Parameter role: The new role.
-    /// - Returns: A new `Link` instance with the updated role.
+    /// 링크의 역할을 조정합니다.
+    /// - Parameter role: 새 역할
+    /// - Returns: 역할이 업데이트된 새 `Link` 인스턴스
     public func role(_ role: Role) -> Self {
         var copy = self
         copy.role = role
         return copy
     }
 
-    /// Adjusts the style of this link.
-    /// - Parameter style: The new style.
-    /// - Returns: A new `Link` instance with the updated style.
+    /// 링크의 스타일을 조정합니다.
+    /// - Parameter style: 새 스타일
+    /// - Returns: 스타일이 업데이트된 새 `Link` 인스턴스
     public func linkStyle(_ style: Style) -> Self {
         var copy = self
         copy.style = style
 
-        // If there isn't already a role for this link,
-        // add one automatically so it has sensible
-        // default button styling.
+        // 이 링크에 역할이 없으면 기본 버튼 스타일을 위해 자동으로 추가
         if copy.role == .default {
             copy.role = .primary
         }
@@ -201,10 +158,9 @@ public struct Link: InlineElement, NavigationItem, DropdownItem {
         return copy
     }
 
-    /// Sets one or more relationships for this link, which provides metadata
-    /// describing what this content means or how it should be used.
-    /// - Parameter relationship: The extra relationships to add.
-    /// - Returns: A new `Link` instance with the updated relationships.
+    /// 링크에 메타데이터 관계(rel 속성)를 설정합니다.
+    /// - Parameter relationship: 추가할 관계들
+    /// - Returns: 관계가 업데이트된 새 `Link` 인스턴스
     public func relationship(_ relationship: LinkRelationship...) -> Self {
         var copy = self
         let attributeValue = relationship.map(\.rawValue).joined(separator: " ")
@@ -213,22 +169,23 @@ public struct Link: InlineElement, NavigationItem, DropdownItem {
         return copy
     }
 
-    /// Renders this element using publishing context passed in.
-    /// - Returns: The HTML for this element.
+    /// 이 요소를 HTML 마크업으로 렌더링합니다.
+    /// [KalSae 포크] URL을 그대로 href에 사용합니다 (경로 변환 없음).
+    /// - Returns: 이 요소의 HTML
     public func markup() -> Markup {
         isPrivacySensitive
             ? renderPrivacyProtectedLink()
             : renderStandardLink()
     }
 
-    /// Whether this link contains sensitive content that should be protected
+    /// 이 링크에 개인정보 보호가 필요한 콘텐츠가 있는지 여부
     private var isPrivacySensitive: Bool {
         attributes.customAttributes.contains { $0.name == "privacy-sensitive" }
     }
 
-    /// Renders a link with privacy protection enabled, encoding the URL and optionally the display content.
-    /// - Parameter context: The current publishing context.
-    /// - Returns: An HTML anchor tag with encoded attributes and content.
+    /// 개인정보 보호가 활성화된 링크를 렌더링합니다.
+    /// URL과 선택적으로 표시 콘텐츠를 Base64 인코딩합니다.
+    /// - Returns: 인코딩된 속성과 콘텐츠를 가진 HTML 앵커 태그
     private func renderPrivacyProtectedLink() -> Markup {
         let displayText = content.markupString()
         let encodingType = attributes.customAttributes.first { $0.name == "privacy-sensitive" }?.value ?? "urlOnly"
@@ -247,19 +204,12 @@ public struct Link: InlineElement, NavigationItem, DropdownItem {
         return Markup("a\(linkAttributes)>\(displayContent)</a>")
     }
 
-    /// Renders a standard link with the provided URL and content.
-    /// - Returns: An HTML anchor tag with the appropriate href and content.
+    /// 표준 링크를 렌더링합니다.
+    /// [KalSae 포크] URL을 그대로 href에 사용합니다.
+    /// - Returns: href와 콘텐츠가 포함된 HTML 앵커 태그
     private func renderStandardLink() -> Markup {
         var linkAttributes = attributes.appending(classes: linkClasses)
-
-        guard let url = URL(string: url) else {
-            publishingContext.addWarning("One of your links uses an invalid URL.")
-            return Markup()
-        }
-
-        let path = publishingContext.linkPath(for: url)
-        linkAttributes.append(customAttributes: .init(name: "href", value: path))
-        let contentHTML = content.markupString()
-        return Markup("<a\(linkAttributes)>\(contentHTML)</a>")
+        linkAttributes.append(customAttributes: .init(name: "href", value: url))
+        return Markup("<a\(linkAttributes)>\(content.markupString())</a>")
     }
 }

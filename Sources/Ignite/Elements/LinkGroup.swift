@@ -1,61 +1,43 @@
 //
 // LinkGroup.swift
-// Ignite
-// https://www.github.com/twostraws/Ignite
-// See LICENSE for license information.
+// Ignite (KalSae HTML-Only Fork)
+// 원본: https://www.github.com/twostraws/Ignite
+// 라이선스: MIT (LICENSE 참조)
+//
+// [KalSae 포크 변경] StaticPage/Article init 제거, URL을 그대로 href에 사용
 //
 
 import Foundation
 
-/// A hyperlink to another resource on this site or elsewhere.
+/// 블록 콘텐츠를 감싸는 하이퍼링크 (HTML 요소를 하위 콘텐츠로 포함 가능)
 public struct LinkGroup: HTML {
-    /// The content and behavior of this HTML.
+    /// 이 HTML의 콘텐츠와 동작
     public var body: some HTML { self }
 
-    /// The standard set of control attributes for HTML elements.
+    /// HTML 요소의 표준 제어 속성 집합
     public var attributes = CoreAttributes()
 
-    /// Whether this HTML belongs to the framework.
+    /// 이 HTML이 프레임워크에 속하는지 여부
     public var isPrimitive: Bool { true }
 
-    /// The content to display inside this link.
+    /// 링크 내부에 표시할 콘텐츠
     var content: any BodyElement
 
-    /// The location to which this link should direct users.
+    /// 링크가 가리키는 URL
     var url: String
 
-    /// Creates a `Link` instance from the content you provide, linking to the
-    /// URL specified.
+    /// 제공된 콘텐츠로 `LinkGroup` 인스턴스를 생성합니다.
     /// - Parameters:
-    ///   - target: The URL you want to link to.
-    ///   - content: The user-facing content to show inside the `Link`.
+    ///   - target: 링크할 URL
+    ///   - content: 링크 내부에 표시할 HTML 콘텐츠
     public init(target: String, @HTMLBuilder content: @escaping () -> some HTML) {
         self.content = content()
         self.url = target
     }
 
-    /// Creates a Link wrapping the provided content and pointing to the given page
-    /// - Parameters:
-    ///  - target: The new target to apply.
-    ///  - content: The user-facing content to show inside the `Link`.
-    public init(target: any StaticPage, @HTMLBuilder content: @escaping () -> some HTML) {
-        self.content = content()
-        self.url = target.path
-    }
-
-    /// Creates a `Link` wrapping the provided content and pointing to the path
-    /// of the `Article` instance you provide.
-    /// - Parameters:
-    ///   - article: An article in your site.
-    ///   - content: The user-facing content to show inside the `Link`.
-    public init(target article: Article, @HTMLBuilder content: @escaping () -> some HTML) {
-        self.content = content()
-        self.url = article.path
-    }
-
-    /// Controls in which window this page should be opened.
-    /// - Parameter target: The new target to apply.
-    /// - Returns: A new `Link` instance with the updated target.
+    /// 이 페이지를 열 창을 제어합니다.
+    /// - Parameter target: 적용할 새 타겟
+    /// - Returns: 타겟이 업데이트된 새 `LinkGroup` 인스턴스
     public func target(_ target: LinkTarget) -> Self {
         if let name = target.name {
             var copy = self
@@ -67,10 +49,9 @@ public struct LinkGroup: HTML {
         }
     }
 
-    /// Sets one or more relationships for this link, which provides metadata
-    /// describing what this content means or how it should be used.
-    /// - Parameter relationship: The extra relationships to add.
-    /// - Returns: A new `Link` instance with the updated relationships.
+    /// 링크에 메타데이터 관계(rel 속성)를 설정합니다.
+    /// - Parameter relationship: 추가할 관계들
+    /// - Returns: 관계가 업데이트된 새 `LinkGroup` 인스턴스
     public func relationship(_ relationship: LinkRelationship...) -> Self {
         var copy = self
         let attributeValue = relationship.map(\.rawValue).joined(separator: " ")
@@ -79,22 +60,23 @@ public struct LinkGroup: HTML {
         return copy
     }
 
-    /// Renders this element using publishing context passed in.
-    /// - Returns: The HTML for this element.
+    /// 이 요소를 HTML 마크업으로 렌더링합니다.
+    /// [KalSae 포크] URL을 그대로 href에 사용합니다 (경로 변환 없음).
+    /// - Returns: 이 요소의 HTML
     public func markup() -> Markup {
         isPrivacySensitive
             ? renderPrivacyProtectedLink()
             : renderStandardLink()
     }
 
-    /// Whether this link contains sensitive content that should be protected
+    /// 이 링크에 개인정보 보호가 필요한 콘텐츠가 있는지 여부
     private var isPrivacySensitive: Bool {
         attributes.customAttributes.contains { $0.name == "privacy-sensitive" }
     }
 
-    /// Renders a link with privacy protection enabled, encoding the URL and optionally the display content.
-    /// - Parameter context: The current publishing context.
-    /// - Returns: An HTML anchor tag with encoded attributes and content.
+    /// 개인정보 보호가 활성화된 링크를 렌더링합니다.
+    /// URL과 선택적으로 표시 콘텐츠를 Base64 인코딩합니다.
+    /// - Returns: 인코딩된 속성과 콘텐츠를 가진 HTML 앵커 태그
     private func renderPrivacyProtectedLink() -> Markup {
         let displayText = content.markupString()
         let encodingType = attributes.customAttributes.first { $0.name == "privacy-sensitive" }?.value ?? "urlOnly"
@@ -113,19 +95,12 @@ public struct LinkGroup: HTML {
         return Markup("a\(linkAttributes)>\(displayContent)</a>")
     }
 
-    /// Renders a standard link with the provided URL and content.
-    /// - Returns: An HTML anchor tag with the appropriate href and content.
+    /// 표준 링크를 렌더링합니다.
+    /// [KalSae 포크] URL을 그대로 href에 사용합니다.
+    /// - Returns: href와 콘텐츠가 포함된 HTML 앵커 태그
     private func renderStandardLink() -> Markup {
         var linkAttributes = attributes.appending(classes: "link-plain", "d-inline-block")
-
-        guard let url = URL(string: url) else {
-            publishingContext.addWarning("One of your links uses an invalid URL.")
-            return Markup()
-        }
-
-        let path = publishingContext.linkPath(for: url)
-        linkAttributes.append(customAttributes: .init(name: "href", value: path))
-        let contentHTML = content.markupString()
-        return Markup("<a\(linkAttributes)>\(contentHTML)</a>")
+        linkAttributes.append(customAttributes: .init(name: "href", value: url))
+        return Markup("<a\(linkAttributes)>\(content.markupString())</a>")
     }
 }

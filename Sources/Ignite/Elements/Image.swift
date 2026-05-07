@@ -1,280 +1,103 @@
 //
 // Image.swift
-// Ignite
-// https://www.github.com/twostraws/Ignite
-// See LICENSE for license information.
+// Ignite (KalSae HTML-Only Fork)
+// 원본: https://www.github.com/twostraws/Ignite
+// 라이선스: MIT (LICENSE 참조)
+//
+// [KalSae 포크 변경] 데드코드 제거 (findVariants, generateSourceSet 등),
+//   markup()에서 경로를 직접 src에 사용 (업소스 기반 변환 없음)
 //
 
 import Foundation
 
-/// An image on your page. Can be vector (SVG) or raster (JPG, PNG, GIF).
+/// 페이지의 이미지 요소. 벡터(SVG) 또는 래스터(JPG, PNG, GIF) 지원.
 public struct Image: InlineElement, LazyLoadable {
-    /// The content and behavior of this HTML.
+    /// 이 HTML의 콘텐츠와 동작
     public var body: some InlineElement { self }
 
-    /// The standard set of control attributes for HTML elements.
+    /// HTML 요소의 표준 제어 속성 집합
     public var attributes = CoreAttributes()
 
-    /// Whether this HTML belongs to the framework.
+    /// 이 HTML이 프레임워크에 속하는지 여부
     public var isPrimitive: Bool { true }
 
-    /// The path of the image, either relative to the
-    /// root of your site, e.g. /images/dog.jpg., or as a web address.
+    /// 이미지 경로 (URL 또는 상대 경로)
     var path: URL?
 
-    /// Loads an image from one of the built-in icons. See
-    /// https://icons.getbootstrap.com for the list.
+    /// Bootstrap 내장 아이콘 이름 (https://icons.getbootstrap.com 참조)
     var systemImage: String?
 
-    /// An accessibility label for this image, suitable for screen readers.
+    /// 스크린 리더용 접근성 레이블
     var description: String?
 
-    /// Creates a new `Image` instance from the specified path. For an image contained
-    /// in your site's assets, this should be specified relative to the root of your
-    /// site, e.g. /images/dog.jpg.
-    /// Append `~dark` to the end of filenames for a dark mode version of the image. (`cool-image.svg` and `cool-image~dark.svg`)
-    /// Append `@2x` to the end of filenames to supply a higher resoloution version fo the image (`cool-image.png` and `cool-image@2x.png`)
+    /// 지정된 경로로 새 `Image` 인스턴스를 생성합니다.
+    /// [KalSae 포크] `@2x`/`~dark` 변형 자동 감지 불가. 전체 경로로 직접 지정하세요.
     /// - Parameters:
-    ///   - path: The filename of your image relative to the root of your site.
-    ///   e.g. /images/welcome.jpg.
-    ///   - description: An description of your image suitable for screen readers.
+    ///   - path: 이미지 파일 경로 (예: /images/welcome.jpg)
+    ///   - description: 스크린 리더용 이미지 설명
     public init(_ path: String, description: String? = nil) {
         self.path = URL(string: path)
         self.description = description
     }
 
-    /// Creates a new `Image` instance from the name of one of the built-in
-    /// icons. See https://icons.getbootstrap.com for the list.
+    /// Bootstrap 내장 아이콘으로 새 `Image` 인스턴스를 생성합니다.
     /// - Parameters:
-    ///   - systemName: An image name chosen from https://icons.getbootstrap.com
-    ///   - description: An description of your image suitable for screen readers.
+    ///   - systemName: https://icons.getbootstrap.com 에서 선택한 아이콘 이름
+    ///   - description: 스크린 리더용 이미지 설명
     public init(systemName: String, description: String? = nil) {
         self.systemImage = systemName
         self.description = description
     }
 
-    /// Creates a new decorative `Image` instance from the name of an
-    /// image contained in your site's assets folder. Decorative images are hidden
-    /// from screen readers.
-    /// - Parameter name: The filename of your image relative to the root
-    /// of your site, e.g. /images/dog.jpg.
+    /// 장식용 이미지를 생성합니다. 스크린 리더에서 숨겨집니다.
+    /// - Parameter name: 이미지 파일 경로 (예: /images/dog.jpg)
     public init(decorative name: String) {
         self.path = URL(string: name)
         self.description = ""
     }
 
-    /// Allows this image to be scaled up or down from its natural size in
-    /// order to fit into its container.
-    /// - Returns: A new `Image` instance configured to be flexibly sized.
+    /// 컨테이너에 맞춰 이미지 크기를 유동적으로 조절할 수 있게 합니다.
+    /// - Returns: 유동 크기가 설정된 새 `Image` 인스턴스
     public func resizable() -> Self {
         var copy = self
         copy.attributes.append(classes: "img-fluid")
         return copy
     }
 
-    /// Sets the accessibility label for this image to a string suitable for
-    /// screen readers.
-    /// - Parameter label: The new accessibility label to use.
-    /// - Returns: A new `Image` instance with the updated accessibility label.
+    /// 스크린 리더용 접근성 레이블을 설정합니다.
+    /// - Parameter label: 새 접근성 레이블
+    /// - Returns: 레이블이 업데이트된 새 `Image` 인스턴스
     public func accessibilityLabel(_ label: String) -> Self {
         var copy = self
         copy.description = label
         return copy
     }
 
-    /// Renders a system image into the current publishing context.
+    /// Bootstrap 시스템 아이콘을 렌더링합니다.
     /// - Parameters:
-    ///   - icon: The system image to render.
-    ///   - description: The accessibility label to use.
-    /// - Returns: The HTML for this element.
+    ///   - icon: 렌더링할 시스템 아이콘 이름
+    ///   - description: 접근성 레이블
+    /// - Returns: 이 요소의 HTML
     private func render(icon: String, description: String) -> Markup {
         var attributes = attributes
         attributes.append(classes: "bi-\(icon)")
         return Markup("<i\(attributes)></i>")
     }
 
-    /// Renders a user image into the current publishing context.
-    /// - Parameters:
-    ///   - path: The user image to render.
-    ///   - description: The accessibility label to use.
-    ///   - isRemote: Whether this is a remote URL (skips local variant detection).
-    /// - Returns: The HTML for this element.
-    private func render(path: String, sourcePath: String, description: String, isRemote: Bool = false) -> Markup {
-        var attributes = attributes
-        attributes.append(customAttributes:
-            .init(name: "src", value: path),
-            .init(name: "alt", value: description))
-
-        // Remote images don't have local variants (@2x, ~dark), so skip detection.
-        guard !isRemote else {
-            return Markup("<img\(attributes) />")
-        }
-
-        let (lightVariants, darkVariants) = findVariants(for: sourcePath)
-
-        if let sourceSet = generateSourceSet(lightVariants) {
-            attributes.append(customAttributes: sourceSet)
-        }
-
-        if darkVariants.isEmpty {
-            return Markup("<img\(attributes) />")
-        }
-
-        var output = "<picture>"
-
-        if let darkSourceSet = generateSourceSet(darkVariants), let value = darkSourceSet.value {
-            output += "<source media=\"(prefers-color-scheme: dark)\" srcset=\"\(value)\">"
-        }
-
-        // Add the fallback img tag
-        output += "<img\(attributes) />"
-        output += "</picture>"
-        return Markup(output)
-    }
-
-    /// Renders this element using publishing context passed in.
-    /// - Returns: The HTML for this element.
+    /// 이 요소를 HTML 마크업으로 렌더링합니다.
+    /// [KalSae 포크] 경로를 직접 src에 사용, 변형(@2x/~dark) 감지 없음.
+    /// - Returns: 이 요소의 HTML
     public func markup() -> Markup {
-        if description == nil {
-            publishingContext.addWarning("""
-            \(path?.relativePath ?? systemImage ?? "Image"): adding images without a description is not recommended. \
-            Provide a description or use Image(decorative:) to silence this warning.
-            """)
-        }
-
         if let systemImage {
             return render(icon: systemImage, description: description ?? "")
         } else if let path {
-            let isRemote = path.scheme == "http" || path.scheme == "https"
-            let resolvedPath = if isRemote {
-                publishingContext.path(for: path)
-            } else {
-                publishingContext.assetPath(path.relativeString)
-            }
-            return render(path: resolvedPath, sourcePath: path.relativeString, description: description ?? "", isRemote: isRemote)
+            var attributes = attributes
+            attributes.append(customAttributes:
+                .init(name: "src", value: path.relativeString),
+                .init(name: "alt", value: description ?? ""))
+            return Markup("<img\(attributes) />")
         } else {
-            publishingContext.addWarning("""
-            Creating an image with no name or icon should not be possible. \
-            Please file a bug report on the Ignite project.
-            """)
             return Markup()
         }
-    }
-}
-
-private extension Image {
-    /// Checks if a filename contains a pixel density descriptor (e.g., "@2x").
-    func isDensityVariant(_ name: String) -> Bool {
-        let densityPattern = /.*@\d+x.*/
-        return name.contains(densityPattern)
-    }
-
-    /// Extracts the pixel density descriptor from a filename (e.g., "2x" from "image@2x.jpg").
-    func getDensityDescriptor(_ name: String) -> String? {
-        let densityPattern = /@(\d+)x/
-        guard let match = name.firstMatch(of: densityPattern) else { return nil }
-        return "\(match.output.1)x"
-    }
-
-    /// Locates image variants with appearance modifiers (`~dark`) and scale modifiers (`@2x`),
-    /// supporting combined modifiers like `@2x~dark`.
-    /// - Parameter path: The path to the original image file
-    /// - Returns: A tuple containing arrays of URLs for light and dark variants
-    func findVariants(for path: String) -> (light: [URL], dark: [URL]) {
-        let assetURL = assetURL(for: path)
-        let assetPath = assetURL.deletingLastPathComponent()
-        let pathExtension = assetURL.pathExtension
-
-        let baseImageName = assetURL.deletingPathExtension().lastPathComponent
-            .split(separator: "~").first?
-            .split(separator: "@").first ?? ""
-
-        guard let files = try? FileManager.default.contentsOfDirectory(at: assetPath, includingPropertiesForKeys: nil)
-            .filter({ $0.pathExtension == pathExtension })
-        else {
-            publishingContext.addWarning("Could not read the assets directory. Please file a bug report.")
-            return ([], [])
-        }
-
-        return files.reduce(into: ([URL](), [URL]())) { result, file in
-            let filename = file.deletingPathExtension().lastPathComponent
-            let baseFilename = filename.split(separator: "~").first?.split(separator: "@").first ?? ""
-            guard baseFilename.localizedCaseInsensitiveCompare(baseImageName) == .orderedSame else { return }
-
-            if filename.localizedCaseInsensitiveContains("~dark") {
-                result.1.append(file)
-            } else if filename.localizedCaseInsensitiveContains("~light") || isDensityVariant(filename) {
-                result.0.append(file)
-            }
-        }
-    }
-
-    /// Resolves a local image path to its file location inside the site's assets directory.
-    func assetURL(for path: String) -> URL {
-        publishingContext.assetsDirectory.appending(path: normalizeAssetPath(path))
-    }
-
-    /// Converts a source or published asset path to a path relative to the site's assets directory.
-    func normalizeAssetPath(_ path: String) -> String {
-        var assetPath = stripSitePrefix(from: path)
-
-        if assetPath.hasPrefix("/") {
-            assetPath = String(assetPath.dropFirst())
-        }
-
-        return assetPath
-    }
-
-    /// Removes a site's subpath from a published asset path so it can be mapped back to Assets/.
-    func stripSitePrefix(from path: String) -> String {
-        let sitePath = normalizedSitePath()
-        guard !sitePath.isEmpty else {
-            return path
-        }
-
-        if path.hasPrefix("\(sitePath)/") {
-            return String(path.dropFirst(sitePath.count))
-        }
-
-        let relativeSitePath = String(sitePath.dropFirst())
-        if !relativeSitePath.isEmpty, path.hasPrefix("\(relativeSitePath)/") {
-            return String(path.dropFirst(relativeSitePath.count))
-        }
-
-        return path
-    }
-
-    /// Normalizes the site path by removing the trailing slash while preserving the leading slash.
-    func normalizedSitePath() -> String {
-        let sitePath = publishingContext.site.url.path
-        guard sitePath != "/" else {
-            return ""
-        }
-
-        if sitePath.hasSuffix("/") {
-            return String(sitePath.dropLast())
-        }
-
-        return sitePath
-    }
-
-    /// Creates a `srcset` string from image variants with their corresponding pixel density descriptors,
-    /// e.g., `"/images/hero@2x.jpg 2x"` or `"images/hero@2x.jpg 2x"` when `useRelativePaths` is enabled.
-    /// - Parameter variants: An array of image variant URLs
-    /// - Returns: An HTML attribute containing the srcset value, or nil if no valid variants exist
-    func generateSourceSet(_ variants: [URL]) -> Attribute? {
-        let assetsDirectory = publishingContext.assetsDirectory.resolvingSymlinksInPath()
-
-        let sources = variants.compactMap { variant in
-            let normalizedVariant = variant.resolvingSymlinksInPath()
-            let filename = variant.deletingPathExtension().lastPathComponent
-            let densityDescriptor = getDensityDescriptor(filename).map { " \($0)" } ?? ""
-            let relativePath = normalizedVariant.path.replacingOccurrences(of: assetsDirectory.path, with: "")
-            let webPath = relativePath.split(separator: "/").joined(separator: "/")
-            let resolvedPath = publishingContext.assetPath("/\(webPath)")
-            return "\(resolvedPath)\(densityDescriptor)"
-        }.joined(separator: ", ")
-
-        return sources.isEmpty ? nil : .init(name: "srcset", value: sources)
     }
 }

@@ -1,51 +1,51 @@
 //
 // Text.swift
-// Ignite
-// https://www.github.com/twostraws/Ignite
-// See LICENSE for license information.
+// Ignite (KalSae HTML-Only Fork)
+// 원본: https://www.github.com/twostraws/Ignite
+// 라이선스: MIT (LICENSE 참조)
+//
+// [KalSae 포크 변경] init(markdown:) Markdown 파싱 제거, init(markup:parser:) 삭제
 //
 
-/// A structured piece of text, such as a paragraph of heading. If you are just
-/// placing content inside a list, table, table header, and so on, you can usually
-/// just use a simple string. Using `Text` is required if you want a specific paragraph
-/// of text with some styling, or a header of a particular size.
+/// 단락이나 제목 등 구조화된 텍스트 요소입니다.
+/// 목록, 테이블 내부에서는 단순 문자열을 사용할 수 있지만,
+/// 특정 스타일이나 크기의 텍스트가 필요할 때 `Text`를 사용합니다.
 ///
-/// - Important: For types that accept only `InlineElement` or use `@InlineElementBuilder`,
-/// use `Span` instead of `Text`.
+/// - Important: `InlineElement`만 허용하는 타입이나 `@InlineElementBuilder`에서는
+///   `Text` 대신 `Span`을 사용하세요.
 public struct Text: HTML, DropdownItem {
-    /// The content and behavior of this HTML.
+    /// 이 HTML의 콘텐츠와 동작
     public var body: some HTML { self }
 
-    /// The standard set of control attributes for HTML elements.
+    /// HTML 요소의 표준 제어 속성 집합
     public var attributes = CoreAttributes()
 
-    /// Whether this HTML belongs to the framework.
+    /// 이 HTML이 프레임워크에 속하는지 여부
     public var isPrimitive: Bool { true }
 
-    /// The font to use for this text.
+    /// 이 텍스트에 사용할 폰트 스타일 (body, title1~6 등)
     var font = FontStyle.body
 
-    /// The content to place inside the text.
+    /// 텍스트 내부에 배치할 콘텐츠
     private var content: any BodyElement
 
-    /// Whether this text contains multiple paragraphs of Markdown content.
+    /// 여러 단락의 Markdown 콘텐츠인지 여부
     private var isMultilineMarkdown = false
 
-    /// Creates a new `Text` instance using an inline element builder that
-    /// returns an array of the content to place into the text.
-    /// - Parameter content: An array of the content to place into the text.
+    /// 인라인 요소 빌더를 사용하여 새 `Text` 인스턴스를 생성합니다.
+    /// - Parameter content: 텍스트 내부에 배치할 인라인 요소 배열
     public init(@InlineElementBuilder content: () -> any InlineElement) {
         self.content = content()
     }
 
-    /// Creates a new `Text` instance from one inline element.
+    /// 하나의 인라인 요소로부터 새 `Text` 인스턴스를 생성합니다.
     public init(_ string: any InlineElement) {
         self.content = string
     }
 
-    /// Sets the maximum number of lines for the text to display.
-    /// - Parameter number: The line limit. If `nil`, no line limit applies.
-    /// - Returns: A new `Text` instance with the line limit applied.
+    /// 텍스트의 최대 표시 줄 수를 설정합니다.
+    /// - Parameter number: 줄 수 제한. `nil`이면 제한 없음.
+    /// - Returns: 줄 수 제한이 적용된 새 `Text` 인스턴스
     public func lineLimit(_ number: Int?) -> Self {
         var copy = self
         if let number {
@@ -57,8 +57,8 @@ public struct Text: HTML, DropdownItem {
         return copy
     }
 
-    /// Creates a new `Text` instance using "lorem ipsum" placeholder text.
-    /// - Parameter placeholderLength: How many placeholder words to generate.
+    /// "lorem ipsum" 플레이스홀더 텍스트로 새 `Text` 인스턴스를 생성합니다.
+    /// - Parameter placeholderLength: 생성할 플레이스홀더 단어 수
     public init(placeholderLength: Int) {
         precondition(placeholderLength > 0, "placeholderLength must be at least 1.")
 
@@ -86,8 +86,7 @@ public struct Text: HTML, DropdownItem {
                 var formattedWord = isStartOfSentence ? randomWord.capitalized : randomWord
                 isStartOfSentence = false
 
-                // Randomly add punctuation – 10% chance of adding
-                // a comma, and 10% of adding a full stop instead.
+                // 무작위로 구두점 추가 — 10% 확률로 쉼표, 10% 확률로 마침표
                 let punctuationProbability = Int.random(in: 1 ... 10)
                 if punctuationProbability == 1 {
                     formattedWord.append(",")
@@ -106,56 +105,20 @@ public struct Text: HTML, DropdownItem {
         self.content = result
     }
 
-    /// Creates a new Text struct from a Markdown string.
-    /// - Parameter markdown: The Markdown text to parse.
+    /// 원시 HTML 또는 일반 텍스트 문자열로 새 Text를 생성합니다.
+    /// [KalSae 포크] Markdown 파싱 없이 문자열을 그대로 사용합니다.
+    /// - Parameter markdown: 표시할 텍스트 (그대로 사용됨)
     public init(markdown: String) {
-        let parser = MarkdownToHTML(markdown: markdown, removeTitleFromBody: true)
-
-        // Process each paragraph individually to preserve line breaks.
-        // We could simply replace newlines with <br>, but then the paragraphs
-        // wouldn't respond to a theme's paragraphBottomMargin property.
-        if parser.body.contains("</p><p>") {
-            let paragraphs = parser.body
-                .components(separatedBy: "</p><p>")
-                .map {
-                    $0.replacingOccurrences(of: "<p>", with: "")
-                      .replacingOccurrences(of: "</p>", with: "")
-                }
-                .map(Text.init)
-
-            self.content = HTMLCollection(paragraphs)
-            self.isMultilineMarkdown = true
-        } else {
-            // Remove the wrapping <p> tags since they'll be added by markup()
-            let cleanedHTML = parser.body.replacing(#/<\/?p>/#, with: "")
-            self.content = cleanedHTML
-            self.isMultilineMarkdown = false
-        }
+        self.content = markdown
     }
 
-    /// Creates a new `Text` struct from a markup format and its parser.
-    /// - Parameters:
-    ///   - markup: The Markdown text to parse.
-    ///   - parser: The parser to process the text.
-    public init(markup: String, parser: any ArticleRenderer.Type) {
-        do {
-            let parser = try parser.init(markdown: markup, removeTitleFromBody: true)
-            let cleanedHTML = parser.body.replacing(#/<\/?p>/#, with: "")
-            self.content = cleanedHTML
-        } catch {
-            self.content = markup
-            publishingContext.addError(.failedToParseMarkup)
-        }
-    }
-
-    /// Renders this element using publishing context passed in.
-    /// - Returns: The HTML for this element.
+    /// 이 요소를 HTML 마크업으로 렌더링합니다.
+    /// - Returns: 이 요소의 HTML
     public func markup() -> Markup {
         if isMultilineMarkdown {
-            // HTMLCollection will pass its attributes to each child.
-            // This works fine for styles like color, but for styles like
-            // padding, we'd expect them to apply to the paragraphs
-            // collectively. So we'll wrap the paragraphs in a Section.
+            // HTMLCollection은 각 자식에 속성을 전달합니다.
+            // color 같은 스타일은 문제없지만, padding 같은 스타일은
+            // 단락 전체에 적용되어야 하므로 Section으로 감쌓니다.
             Section(content)
                 .attributes(attributes)
                 .markup()
@@ -170,6 +133,9 @@ public struct Text: HTML, DropdownItem {
 }
 
 extension HTML {
+    /// 폰트 스타일을 적용합니다.
+    /// 클래스 기반 스타일이면 CSS 클래스를 추가하고,
+    /// Text 타입이면 font 프로퍼티를 직접 변경합니다.
     func fontStyle(_ font: Font.Style) -> any HTML {
         var copy: any HTML = self
         if Font.Style.classBasedStyles.contains(font), let sizeClass = font.sizeClass {
