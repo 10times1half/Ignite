@@ -100,6 +100,49 @@ await app.loadHTML(html)
   필요하면 `.class("active")`로 직접 추가하세요.
 - **Bootstrap CSS 미포함** → KalSae 프론트엔드 HTML에 직접 포함하거나 CDN을 사용하세요.
 
+## 수정 파일 상세
+
+이 포크에서 원본 대비 수정된 파일 목록입니다.  
+모든 수정 파일에는 `[KalSae 포크]` 또는 `[KalSae 포크 변경]` 태그가 달려 있어 upstream 머지 시 충돌 지점을 쉽게 식별할 수 있습니다.
+
+### Package.swift
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `Package.swift` | 전면 재작성. IgniteCLI/테스트 타겟 제거, swift-markdown·SwiftSoup·ArgumentParser 의존성 제거, iOS 17+ 추가 |
+
+### Elements (10개)
+
+| 파일 | 역할 | 변경 내용 |
+|------|------|----------|
+| `Text.swift` | 단락/제목 텍스트 | `init(markdown:)` Markdown 파싱 제거, `init(markup:parser:)` 삭제 |
+| `Link.swift` | 하이퍼링크 | StaticPage/Article init 제거, URL을 그대로 href에 사용 |
+| `LinkGroup.swift` | 블록 하이퍼링크 | Link.swift와 동일 패턴 적용 |
+| `Image.swift` | 이미지 | 데드코드 제거 (findVariants, generateSourceSet 등), 경로 직접 src에 사용 |
+| `Script.swift` | JavaScript 삽입 | HeadElement → HTML 변경, file.absoluteString 직접 사용 |
+| `Audio.swift` | 오디오 재생 | publishingContext.addWarning() 제거 |
+| `Video.swift` | 비디오 재생 | publishingContext.addWarning() 제거 |
+| `Embed.swift` | 외부 콘텐츠 임베드 | 변경 적음 (독립적 동작) |
+| `NavigationBar.swift` | 상단 내비게이션 바 | active 상태 자동 추적 제거 |
+| `Dropdown.swift` | 드롭다운 메뉴 | hasActiveItem 제거 (항상 false였던 변수) |
+
+### Modifiers & Framework (5개)
+
+| 파일 | 역할 | 변경 내용 |
+|------|------|----------|
+| `Hint.swift` | 툴팁 모디파이어 | Markdown 힌트를 일반 텍스트로 폴백 처리 |
+| `InlineStyleModifier.swift` | 인라인 CSS 스타일 | HeadElement extension 제거 |
+| `ElementBuilder.swift` | Result Builder | HeadElementBuilder 등 퍼블리싱 관련 typealias 제거 |
+| `Defaultable.swift` | 기본값 프로토콜 | HighlighterTheme extension 제거 |
+| `MarkupElement.swift` | 핵심 HTML 프로토콜 | publishingContext 연산 프로퍼티 제거 |
+
+### Themes (2개)
+
+| 파일 | 역할 | 변경 내용 |
+|------|------|----------|
+| `Theme.swift` | 테마 프로토콜 정의 | syntaxHighlighterTheme 프로퍼티 제거 |
+| `Theme-DefaultImplementation.swift` | Bootstrap 기본 테마값 | syntaxHighlighterTheme 기본값 제거 |
+
 ## 패키지 버전 관리
 
 ### 브랜치 추적 (기본)

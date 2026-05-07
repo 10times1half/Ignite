@@ -1,58 +1,51 @@
 //
 // NavigationBar.swift
-// Ignite
-// https://www.github.com/twostraws/Ignite
-// See LICENSE for license information.
+// Ignite (KalSae HTML-Only Fork)
+// 원본: https://www.github.com/twostraws/Ignite
+// 라이선스: MIT (LICENSE 참조)
+//
+// [KalSae 포크 변경] active 상태 자동 추적 제거 (publishingContext 의존)
 //
 
-/// A bar that sits across the top of your page to provide top-level navigation
-/// throughout your site.
+/// 페이지 상단에 위치하는 내비게이션 바
 public struct NavigationBar: HTML {
-    /// The color scheme for this navigation bar.
+    /// 내비게이션 바의 색상 스키마
     public enum NavigationBarStyle {
-        /// No specific color scheme means this bar will be rendered using
-        /// automatic settings.
+        /// 자동 설정 사용
         case automatic
-
-        /// This bar must always be rendered in light mode.
+        /// 항상 라이트 모드로 렌더링
         case light
-
-        /// This bar must always be rendered in dark mode.
+        /// 항상 다크 모드로 렌더링
         case dark
     }
 
-    /// The new number of columns to use.
+    /// 사용할 열 수 설정
     public enum Width: Sendable {
-        /// Viewport sets column width
+        /// 뷰포트가 열 너비 결정
         case viewport
-        /// Specific count sets column width
+        /// 특정 수로 열 너비 설정
         case count(Int)
     }
 
-    /// How navigation bar items should be aligned horizontally.
+    /// 내비게이션 항목의 수평 정렬 방식
     public enum ItemAlignment: String {
-        /// Items are aligned to the leading edge
+        /// 앞쪽 정렬
         case leading = ""
-
-        /// Items are aligned in the center
+        /// 가운데 정렬
         case center = "justify-content-center"
-
-        /// Items are aligned to the trailing edge
+        /// 뒤쪽 정렬
         case trailing = "justify-content-end"
-
-        /// Items are aligned to the trailing edge by default.
+        /// 기본값: 뒤쪽 정렬
         public static var automatic: Self { .trailing }
     }
 
-    /// How the navigation menu toggle button should be styled.
+    /// 내비게이션 메뉴 토글 버튼의 스타일
     public enum NavigationMenuStyle: Sendable {
-        /// A toggle button with no border.
+        /// 테두리 없는 토글 버튼
         case plain
-
-        /// A toggle button with the default border styling.
+        /// 기본 테두리 스타일의 토글 버튼
         case bordered
-
-        /// The default style for navigation menus.
+        /// 기본 스타일
         public static var automatic: Self { .bordered }
 
         var styles: [InlineStyle] {
@@ -63,52 +56,47 @@ public struct NavigationBar: HTML {
         }
     }
 
-    /// Which icon should be used in the navigation menu toggle button.
+    /// 내비게이션 메뉴 토글에 사용할 아이콘
     public enum NavigationMenuIcon: String, Sendable {
-        /// A hamburger menu icon (three horizontal lines).
+        /// 햄버거 메뉴 아이콘 (가로선 3개)
         case bars = "navbar-toggler-icon"
-
-        /// A three-dots menu icon.
+        /// 점 3개 메뉴 아이콘
         case ellipsis = "bi bi-three-dots"
-
-        /// The default icon for navigation menus.
+        /// 기본 아이콘
         public static var automatic: Self { .bars}
     }
 
-    /// The content and behavior of this HTML.
+    /// 이 HTML의 콘텐츠와 동작
     public var body: some HTML { self }
 
-    /// The standard set of control attributes for HTML elements.
+    /// HTML 요소의 표준 제어 속성 집합
     public var attributes = CoreAttributes()
 
-    /// Whether this HTML belongs to the framework.
+    /// 이 HTML이 프레임워크에 속하는지 여부
     public var isPrimitive: Bool { true }
 
-    /// Controls the maximum width of the navigation bar content at different breakpoints.
-    /// By default, uses Bootstrap's container class.
+    /// 다양한 브레이크포인트에서 내리게이션 바 콘텐츠의 최대 너비를 제어합니다.
     private var widthClasses: [String] = ["container"]
 
-    /// The icon displayed in the navigation menu toggle button.
+    /// 토글 버튼에 표시할 아이콘
     private var toggleIcon: NavigationMenuIcon = .automatic
 
-    /// The visual style applied to the navigation menu toggle button.
+    /// 토글 버튼의 시각적 스타일
     private var toggleMenuStyle: NavigationMenuStyle = .automatic
 
-    /// The main logo for your site, such as an image or some text. This becomes
-    /// clickable to let users navigate to your homepage.
+    /// 사이트의 메인 로고. 클릭 시 홈페이지로 이동합니다.
     private let logo: any InlineElement
 
-    /// An array of items to show in this navigation bar.
+    /// 내비게이션 바에 표시할 항목 배열
     private let items: [any NavigationItem]
 
-    /// The style to use when rendering this bar.
+    /// 내비게이션 바 렌더링 스타일
     private var style = NavigationBarStyle.automatic
 
-    /// How items in this navigation bar should be aligned
+    /// 항목 정렬 방식
     private var itemAlignment = ItemAlignment.automatic
 
-    /// The number of controls that aren't `Spacer`,
-    /// used to determine the gap class that should be used.
+    /// `Spacer`가 아닌 보이는 컨트롤 수 (간격 클래스 결정에 사용)
     private var visibleControlCount: Int {
         items.filter {
             $0.navigationBarVisibility == .always &&
@@ -116,9 +104,8 @@ public struct NavigationBar: HTML {
         }.count
     }
 
-    /// Creates a new `NavigationBar` instance from the `logo`, without any items.
-    /// - Parameters:
-    ///   - logo: The logo to use in the top-left edge of your bar.
+    /// 로고 없이 새 `NavigationBar` 인스턴스를 생성합니다.
+    /// - Parameter logo: 바 왼쪽 상단에 사용할 로고
     public init(
         logo: (any InlineElement)? = nil
     ) {
@@ -126,11 +113,10 @@ public struct NavigationBar: HTML {
         self.items = []
     }
 
-    /// Creates a new `NavigationBar` instance from the `logo` and `items` provided.
+    /// 로고와 항목들로 새 `NavigationBar` 인스턴스를 생성합니다.
     /// - Parameters:
-    ///   - logo: The logo to use in the top-left edge of your bar.
-    ///   - items: Basic navigation items like `Link` and `Span` that will be
-    ///   collapsed into a hamburger menu at small screen sizes.
+    ///   - logo: 바 왼쪽 상단에 사용할 로고
+    ///   - items: 작은 화면에서 햄버거 메뉴로 접힘되는 내비게이션 항목들
     public init(
         logo: (any InlineElement)? = nil,
         @ElementBuilder<NavigationItem> items: () -> [any NavigationItem]
@@ -139,11 +125,10 @@ public struct NavigationBar: HTML {
         self.items = items()
     }
 
-    /// Creates a new `NavigationBar` instance from the `logo` and `items` provided.
+    /// 항목들과 로고로 새 `NavigationBar` 인스턴스를 생성합니다.
     /// - Parameters:
-    ///   - items: Basic navigation items like `Link` and `Span` that will be
-    ///   collapsed into a hamburger menu at small screen sizes.
-    ///   - logo: The logo to use in the top-left edge of your bar.
+    ///   - items: 내비게이션 항목들
+    ///   - logo: 바 왼쪽 상단에 사용할 로고
     public init(
         @ElementBuilder<NavigationItem> items: () -> [any NavigationItem],
         @InlineElementBuilder logo: () -> any InlineElement = { EmptyInlineElement() }
@@ -152,19 +137,18 @@ public struct NavigationBar: HTML {
         self.logo = logo()
     }
 
-    /// Adjusts the style of this navigation bar.
-    /// - Parameter style: The new style.
-    /// - Returns: A new `NavigationBar` instance with the updated style.
+    /// 내비게이션 바의 스타일을 조정합니다.
+    /// - Parameter style: 새 스타일
+    /// - Returns: 스타일이 업데이트된 새 `NavigationBar` 인스턴스
     public func navigationBarStyle(_ style: NavigationBarStyle) -> Self {
         var copy = self
         copy.style = style
         return copy
     }
 
-    /// Adjusts the number of columns assigned to the items in the navigation bar.
-    /// It does not have an effect on the navigation bar itself.
-    /// - Parameter width: The new number of columns to use.
-    /// - Returns: A new `NavigationBar` instance with the adjusted column width.
+    /// 내비게이션 바 항목의 열 수를 조정합니다.
+    /// - Parameter width: 새 열 수
+    /// - Returns: 열 너비가 조정된 새 `NavigationBar` 인스턴스
     public func width(_ width: Width) -> Self {
         var copy = self
         switch width {
@@ -177,35 +161,36 @@ public struct NavigationBar: HTML {
         return copy
     }
 
-    /// Adjusts the item alignment for this navigation bar.
-    /// - Parameter alignment: The new alignment.
-    /// - Returns: A new `NavigationBar` instance with the updated item alignment.
+    /// 항목 정렬 방식을 조정합니다.
+    /// - Parameter alignment: 새 정렬 방식
+    /// - Returns: 정렬이 업데이트된 새 `NavigationBar` 인스턴스
     public func navigationItemAlignment(_ alignment: ItemAlignment) -> Self {
         var copy = self
         copy.itemAlignment = alignment
         return copy
     }
 
-    /// Sets the icon to display in the navigation menu toggle button.
-    /// - Parameter icon: The icon to use for the toggle button.
-    /// - Returns: A new `NavigationBar` instance with the updated toggle icon.
+    /// 토글 버튼의 아이콘을 설정합니다.
+    /// - Parameter icon: 토글 버튼에 사용할 아이콘
+    /// - Returns: 아이콘이 업데이트된 새 `NavigationBar` 인스턴스
     public func navigationMenuIcon(_ icon: NavigationMenuIcon) -> Self {
         var copy = self
         copy.toggleIcon = icon
         return copy
     }
 
-    ///  Sets the visual style of the navigation menu toggle button.
-    /// - Parameter style: The style to apply to the toggle button.
-    /// - Returns: A new `NavigationBar` instance with the updated toggle button style.
+    /// 토글 버튼의 시각적 스타일을 설정합니다.
+    /// - Parameter style: 토글 버튼에 적용할 스타일
+    /// - Returns: 스타일이 업데이트된 새 `NavigationBar` 인스턴스
     public func navigationMenuStyle(_ style: NavigationMenuStyle) -> Self {
         var copy = self
         copy.toggleMenuStyle = style
         return copy
     }
 
-    /// Renders this element using publishing context passed in.
-    /// - Returns: The HTML for this element.
+    /// 이 요소를 HTML 마크업으로 렌더링합니다.
+    /// [KalSae 포크] active 상태 자동 추적 없음. 필요시 `.class("active")`로 직접 추가.
+    /// - Returns: 이 요소의 HTML
     public func markup() -> Markup {
         // Use the child items directly so that types like Spacer() aren't concealed
         let items = items.flatMap { ($0 as? NavigationItemGroup)?.items ?? [$0] }

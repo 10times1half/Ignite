@@ -1,10 +1,14 @@
 //
 // InlineStyleModifier.swift
-// Ignite
-// https://www.github.com/twostraws/Ignite
-// See LICENSE for license information.
+// Ignite (KalSae HTML-Only Fork)
+// 원본: https://www.github.com/twostraws/Ignite
+// 라이선스: MIT (LICENSE 참조)
+//
+// [KalSae 포크 변경] HeadElement extension 제거 (Head 요소 미사용)
 //
 
+/// 인라인 CSS 스타일을 블록 요소에 적용하는 내부 헬퍼
+/// primitive가 아닌 요소는 Section으로 래핑하여 스타일을 적용합니다.
 @MainActor private func inlineStyleModifier(
     _ styles: [InlineStyle],
     content: any BodyElement
@@ -14,6 +18,8 @@
     return copy
 }
 
+/// 인라인 CSS 스타일을 인라인 요소에 적용하는 내부 헬퍼
+/// primitive가 아닌 요소는 Span으로 래핑하여 스타일을 적용합니다.
 @MainActor private func inlineStyleModifier(
     _ styles: [InlineStyle],
     content: any InlineElement
@@ -24,22 +30,22 @@
 }
 
 public extension HTML {
-    /// Adds an inline CSS style property to the HTML element
+    /// HTML 요소에 인라인 CSS 스타일 속성을 추가합니다.
     /// - Parameters:
-    ///   - property: The CSS property to set
-    ///   - value: The value to set for the property
-    /// - Returns: A modified copy of the element with the style property added
+    ///   - property: 설정할 CSS 속성
+    ///   - value: 해당 속성의 값
+    /// - Returns: 스타일이 추가된 요소의 수정된 복사본
     func style(_ property: Property, _ value: String) -> some HTML {
         AnyHTML(inlineStyleModifier([.init(property, value: value)], content: self))
     }
 }
 
 public extension InlineElement {
-    /// Adds an inline CSS style property to the HTML element
+    /// 인라인 요소에 인라인 CSS 스타일 속성을 추가합니다.
     /// - Parameters:
-    ///   - property: The CSS property to set
-    ///   - value: The value to set for the property
-    /// - Returns: A modified copy of the element with the style property added
+    ///   - property: 설정할 CSS 속성
+    ///   - value: 해당 속성의 값
+    /// - Returns: 스타일이 추가된 요소의 수정된 복사본
     func style(_ property: Property, _ value: String) -> some InlineElement {
         AnyInlineElement(inlineStyleModifier([.init(property, value: value)], content: self))
     }

@@ -1,63 +1,61 @@
 //
-// DropdownItem.swift
-// Ignite
-// https://www.github.com/twostraws/Ignite
-// See LICENSE for license information.
+// Dropdown.swift
+// Ignite (KalSae HTML-Only Fork)
+// 원본: https://www.github.com/twostraws/Ignite
+// 라이선스: MIT (LICENSE 참조)
+//
+// [KalSae 포크 변경] hasActiveItem 제거 (active 상태 자동 추적 없음)
 //
 
-/// Elements that conform to `DropdownItem` can be shown inside
-/// Dropdown objects.
+/// `DropdownItem`을 구현한 요소는 Dropdown 내부에 표시할 수 있습니다.
 public protocol DropdownItem: BodyElement {}
 
-/// Renders a button that presents a menu of information when pressed.
-/// Can be used as a free-floating element on your page, or in
-/// a `NavigationBar`.
+/// 누르면 메뉴를 표시하는 버튼을 렌더링합니다.
+/// 독립적으로 사용하거나 `NavigationBar` 내부에서 사용할 수 있습니다.
 public struct Dropdown: HTML, NavigationItem, FormItem {
-    /// How the dropdown should be rendered based on its context.
+    /// 컨텍스트에 따른 드롭다운 렌더링 방식
     enum Configuration: Sendable {
-        /// Renders as a complete standalone dropdown.
+        /// 독립 드롭다운으로 렌더링
         case standalone
-        /// Renders for placement inside a navigation bar.
+        /// 내비게이션 바 내부에 배치
         case navigationBarItem
-        /// Renders for placement inside a control group.
+        /// 컨트롤 그룹 내부에 배치
         case controlGroupItem
-        /// Renders as the last item in a control group with special positioning.
+        /// 컨트롤 그룹의 마지막 항목으로 배치
         case lastControlGroupItem
     }
 
-    /// The content and behavior of this HTML.
+    /// 이 HTML의 콘텐츠와 동작
     public var body: some HTML { self }
 
-    /// The standard set of control attributes for HTML elements.
+    /// HTML 요소의 표준 제어 속성 집합
     public var attributes = CoreAttributes()
 
-    /// Whether this HTML belongs to the framework.
+    /// 이 HTML이 프레임워크에 속하는지 여부
     public var isPrimitive: Bool { true }
 
-    /// How a `NavigationBar` displays this item at different breakpoints.
+    /// `NavigationBar`에서 이 항목의 브레이크포인트별 표시 방식
     public var navigationBarVisibility: NavigationBarVisibility = .automatic
 
-    /// The title for this `Dropdown`.
+    /// 드롭다운의 제목
     private var title: any InlineElement
 
-    /// The array of items to shown in this `Dropdown`.
+    /// 드롭다운 메뉴에 표시할 항목 배열
     private var items: [any DropdownItem]
 
-    /// How large this dropdown should be drawn. Defaults to `.medium`.
+    /// 드롭다운 크기. 기본값: `.medium`
     private var size = Button.Size.medium
 
-    /// How this dropdown should be styled on the screen. Defaults to `.defaut`.
+    /// 드롭다운의 스타일. 기본값: `.default`
     private var role = Role.default
 
-    /// Controls whether this dropdown needs to be created as its own element,
-    /// or whether it uses the structure provided by a parent like `NavigationBar`.
+    /// 드롭다운을 독립 요소로 생성할지, 부모의 구조를 사용할지 결정
     private var configuration: Configuration = .standalone
 
-    /// Creates a new dropdown button using a title and an element that builder
-    /// that returns an array of types conforming to `DropdownItem`.
+    /// 제목과 항목 빌더로 새 `Dropdown` 인스턴스를 생성합니다.
     /// - Parameters:
-    ///   - title: The title to show on this dropdown button.
-    ///   - items: The elements to place inside the dropdown menu.
+    ///   - title: 드롭다운 버튼의 제목
+    ///   - items: 메뉴에 표시할 항목들
     public init(
         _ title: any InlineElement,
         @ElementBuilder<any DropdownItem> items: () -> [any DropdownItem]
@@ -66,11 +64,10 @@ public struct Dropdown: HTML, NavigationItem, FormItem {
         self.items = items()
     }
 
-    /// Creates a new dropdown button using a title and an element that builder
-    /// that returns an array of types conforming to `DropdownItem`.
+    /// 항목 빌더와 제목 빌더로 새 `Dropdown` 인스턴스를 생성합니다.
     /// - Parameters:
-    ///   - items: The elements to place inside the dropdown menu.
-    ///   - title: The title to show on this dropdown button.
+    ///   - items: 메뉴에 표시할 항목들
+    ///   - title: 드롭다운 버튼의 제목
     public init(
         @ElementBuilder<any DropdownItem> items: () -> [any DropdownItem],
         @InlineElementBuilder title: () -> any InlineElement
@@ -79,25 +76,25 @@ public struct Dropdown: HTML, NavigationItem, FormItem {
         self.title = title()
     }
 
-    /// Adjusts the size of this dropdown.
-    /// - Parameter size: The new size.
-    /// - Returns: A new `Dropdown` instance with the updated size.
+    /// 드롭다운의 크기를 조정합니다.
+    /// - Parameter size: 새 크기
+    /// - Returns: 크기가 업데이트된 새 `Dropdown` 인스턴스
     public func dropdownSize(_ size: Button.Size) -> Self {
         var copy = self
         copy.size = size
         return copy
     }
 
-    /// Adjusts the role of this dropdown
-    /// - Parameter role: The new role.
-    /// - Returns: A new `Dropdown` instance with the updated role.
+    /// 드롭다운의 역할을 조정합니다.
+    /// - Parameter role: 새 역할
+    /// - Returns: 역할이 업데이트된 새 `Dropdown` 인스턴스
     public func role(_ role: Role) -> Dropdown {
         var copy = self
         copy.role = role
         return copy
     }
 
-    /// Sets how this dropdown should be rendered based on its placement context.
+    /// 드롭다운의 렌더링 컨텍스트를 설정합니다.
     /// - Parameter configuration: The context in which this dropdown will be used.
     /// - Returns: A configured dropdown instance.
     func configuration(_ configuration: Configuration) -> Self {
@@ -122,7 +119,9 @@ public struct Dropdown: HTML, NavigationItem, FormItem {
     }
 
     /// Creates the internal dropdown structure including the trigger button and menu items.
-    /// - Returns: A group containing the dropdown's trigger and menu list.
+    /// 드롭다운 트리거와 메뉴 리스트를 렌더링합니다.
+    /// [KalSae 포크] active 상태 자동 추적 없음.
+    /// - Returns: 트리거와 메뉴 리스트를 담은 그룹
     @HTMLBuilder
     private func renderDropdownContent() -> some BodyElement {
         if configuration == .navigationBarItem {
@@ -163,7 +162,7 @@ public struct Dropdown: HTML, NavigationItem, FormItem {
 }
 
 private extension InlineElement {
-    /// Returns a copy of the element with all attributes removed.
+    /// 모든 속성이 제거된 요소의 복사본을 반환합니다.
     func clearingAttributes() -> some InlineElement {
         var copy = self
         copy.attributes = CoreAttributes()

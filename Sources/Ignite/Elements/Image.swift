@@ -1,100 +1,92 @@
 //
 // Image.swift
-// Ignite
-// https://www.github.com/twostraws/Ignite
-// See LICENSE for license information.
+// Ignite (KalSae HTML-Only Fork)
+// 원본: https://www.github.com/twostraws/Ignite
+// 라이선스: MIT (LICENSE 참조)
+//
+// [KalSae 포크 변경] 데드코드 제거 (findVariants, generateSourceSet 등),
+//   markup()에서 경로를 직접 src에 사용 (업소스 기반 변환 없음)
 //
 
 import Foundation
 
-/// An image on your page. Can be vector (SVG) or raster (JPG, PNG, GIF).
+/// 페이지의 이미지 요소. 벡터(SVG) 또는 래스터(JPG, PNG, GIF) 지원.
 public struct Image: InlineElement, LazyLoadable {
-    /// The content and behavior of this HTML.
+    /// 이 HTML의 콘텐츠와 동작
     public var body: some InlineElement { self }
 
-    /// The standard set of control attributes for HTML elements.
+    /// HTML 요소의 표준 제어 속성 집합
     public var attributes = CoreAttributes()
 
-    /// Whether this HTML belongs to the framework.
+    /// 이 HTML이 프레임워크에 속하는지 여부
     public var isPrimitive: Bool { true }
 
-    /// The path of the image, either relative to the
-    /// root of your site, e.g. /images/dog.jpg., or as a web address.
+    /// 이미지 경로 (URL 또는 상대 경로)
     var path: URL?
 
-    /// Loads an image from one of the built-in icons. See
-    /// https://icons.getbootstrap.com for the list.
+    /// Bootstrap 내장 아이콘 이름 (https://icons.getbootstrap.com 참조)
     var systemImage: String?
 
-    /// An accessibility label for this image, suitable for screen readers.
+    /// 스크린 리더용 접근성 레이블
     var description: String?
 
-    /// Creates a new `Image` instance from the specified path. For an image contained
-    /// in your site's assets, this should be specified relative to the root of your
-    /// site, e.g. /images/dog.jpg.
-    /// Append `~dark` to the end of filenames for a dark mode version of the image. (`cool-image.svg` and `cool-image~dark.svg`)
-    /// Append `@2x` to the end of filenames to supply a higher resoloution version fo the image (`cool-image.png` and `cool-image@2x.png`)
+    /// 지정된 경로로 새 `Image` 인스턴스를 생성합니다.
+    /// [KalSae 포크] `@2x`/`~dark` 변형 자동 감지 불가. 전체 경로로 직접 지정하세요.
     /// - Parameters:
-    ///   - path: The filename of your image relative to the root of your site.
-    ///   e.g. /images/welcome.jpg.
-    ///   - description: An description of your image suitable for screen readers.
+    ///   - path: 이미지 파일 경로 (예: /images/welcome.jpg)
+    ///   - description: 스크린 리더용 이미지 설명
     public init(_ path: String, description: String? = nil) {
         self.path = URL(string: path)
         self.description = description
     }
 
-    /// Creates a new `Image` instance from the name of one of the built-in
-    /// icons. See https://icons.getbootstrap.com for the list.
+    /// Bootstrap 내장 아이콘으로 새 `Image` 인스턴스를 생성합니다.
     /// - Parameters:
-    ///   - systemName: An image name chosen from https://icons.getbootstrap.com
-    ///   - description: An description of your image suitable for screen readers.
+    ///   - systemName: https://icons.getbootstrap.com 에서 선택한 아이콘 이름
+    ///   - description: 스크린 리더용 이미지 설명
     public init(systemName: String, description: String? = nil) {
         self.systemImage = systemName
         self.description = description
     }
 
-    /// Creates a new decorative `Image` instance from the name of an
-    /// image contained in your site's assets folder. Decorative images are hidden
-    /// from screen readers.
-    /// - Parameter name: The filename of your image relative to the root
-    /// of your site, e.g. /images/dog.jpg.
+    /// 장식용 이미지를 생성합니다. 스크린 리더에서 숨겨집니다.
+    /// - Parameter name: 이미지 파일 경로 (예: /images/dog.jpg)
     public init(decorative name: String) {
         self.path = URL(string: name)
         self.description = ""
     }
 
-    /// Allows this image to be scaled up or down from its natural size in
-    /// order to fit into its container.
-    /// - Returns: A new `Image` instance configured to be flexibly sized.
+    /// 컨테이너에 맞춰 이미지 크기를 유동적으로 조절할 수 있게 합니다.
+    /// - Returns: 유동 크기가 설정된 새 `Image` 인스턴스
     public func resizable() -> Self {
         var copy = self
         copy.attributes.append(classes: "img-fluid")
         return copy
     }
 
-    /// Sets the accessibility label for this image to a string suitable for
-    /// screen readers.
-    /// - Parameter label: The new accessibility label to use.
-    /// - Returns: A new `Image` instance with the updated accessibility label.
+    /// 스크린 리더용 접근성 레이블을 설정합니다.
+    /// - Parameter label: 새 접근성 레이블
+    /// - Returns: 레이블이 업데이트된 새 `Image` 인스턴스
     public func accessibilityLabel(_ label: String) -> Self {
         var copy = self
         copy.description = label
         return copy
     }
 
-    /// Renders a system image into the current publishing context.
+    /// Bootstrap 시스템 아이콘을 렌더링합니다.
     /// - Parameters:
-    ///   - icon: The system image to render.
-    ///   - description: The accessibility label to use.
-    /// - Returns: The HTML for this element.
+    ///   - icon: 렌더링할 시스템 아이콘 이름
+    ///   - description: 접근성 레이블
+    /// - Returns: 이 요소의 HTML
     private func render(icon: String, description: String) -> Markup {
         var attributes = attributes
         attributes.append(classes: "bi-\(icon)")
         return Markup("<i\(attributes)></i>")
     }
 
-    /// Renders this element using publishing context passed in.
-    /// - Returns: The HTML for this element.
+    /// 이 요소를 HTML 마크업으로 렌더링합니다.
+    /// [KalSae 포크] 경로를 직접 src에 사용, 변형(@2x/~dark) 감지 없음.
+    /// - Returns: 이 요소의 HTML
     public func markup() -> Markup {
         if let systemImage {
             return render(icon: systemImage, description: description ?? "")
