@@ -210,10 +210,7 @@ public struct Link: InlineElement, NavigationItem, DropdownItem {
     /// - Returns: An HTML anchor tag with the appropriate href and content.
     private func renderStandardLink() -> Markup {
         var linkAttributes = attributes.appending(classes: linkClasses)
-
-        let path = url
-        linkAttributes.append(customAttributes: .init(name: "href", value: path))
-        let contentHTML = content.markupString()
-        return Markup("<a\(linkAttributes)>\(contentHTML)</a>")
+        linkAttributes.append(customAttributes: .init(name: "href", value: url))
+        return Markup("<a\(linkAttributes)>\(content.markupString())</a>")
     }
 }

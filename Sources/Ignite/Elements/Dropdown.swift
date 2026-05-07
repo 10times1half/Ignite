@@ -128,11 +128,10 @@ public struct Dropdown: HTML, NavigationItem, FormItem {
         if configuration == .navigationBarItem {
             let titleAttributes = title.attributes
             let title = title.clearingAttributes()
-            let hasActiveItem = false
 
             Link(title, target: "#")
                 .customAttribute(name: "role", value: "button")
-                .class("dropdown-toggle", "nav-link", hasActiveItem ? "active" : nil)
+                .class("dropdown-toggle", "nav-link")
                 .data("bs-toggle", "dropdown")
                 .aria(.expanded, "false")
                 .attributes(titleAttributes)
